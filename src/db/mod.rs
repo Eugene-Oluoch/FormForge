@@ -1,6 +1,6 @@
 use std::fmt::format;
 
-use mongodb::{Client, Collection, results::{InsertOneResult}, bson::{doc, Bson, Document}};
+use mongodb::{Client, Collection, results::{InsertOneResult}, bson::{doc, Bson, Document}, error::Error};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
 use crate::OptionSelect;
@@ -26,9 +26,8 @@ pub async fn create_connection() -> Client {
 
   // MONGO URI
   let uri = format!("mongodb+srv://{}:{}@{}.bh0z6ws.mongodb.net/?retryWrites=true&w=majority",mongo_username,mongo_password,mongo_cluster);
-  println!("{}",uri);
-  let client = Client::with_uri_str(uri).await.expect("Failed to initialize client.");
-  client
+  
+  Client::with_uri_str(uri).await.expect("Failed to initialize client.")
 }
 
 
@@ -43,7 +42,7 @@ where T: Serialize
 
 }
 
-pub async fn get_by_id<T>(client:&Client,db_name:&str,collection:&str,id:&str) -> Option<T>
+pub async fn get_by_id<T>(client:&Client,db_name:&str,collection:&str,id:&str) -> Result<Option<T>,Error>
 where T:Serialize 
 + std::fmt::Debug 
 + DeserializeOwned 
@@ -51,7 +50,7 @@ where T:Serialize
 + Unpin + Send + Sync
 {
   let col:Collection<T> = create_collection(client, db_name, collection).await;
-  col.find_one(doc! {"_id": string_to_object_id(id)},None).await.unwrap()
+  col.find_one(doc! {"_id": string_to_object_id(id)},None).await
 }
 
 
