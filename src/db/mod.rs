@@ -1,11 +1,14 @@
-use mongodb::{Client, options::{ClientOptions, ResolverConfig}, Collection, results::{InsertManyResult, InsertOneResult}, bson::{oid::ObjectId, doc, Bson, Document}};
+use std::fmt::format;
+
+use mongodb::{Client, Collection, results::{InsertOneResult}, bson::{doc, Bson, Document}};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
 use crate::OptionSelect;
 use crate::utils::string_to_object_id;
-use crate::Select;
+use dotenv::dotenv;
+use std::env::var;
 
-// .to_hex() changes ObjectId
+
 
 
 async fn create_collection<T>(client:&Client,db_name:&str, collection:&str) -> Collection<T>{
@@ -13,7 +16,17 @@ async fn create_collection<T>(client:&Client,db_name:&str, collection:&str) -> C
 }
 
 pub async fn create_connection() -> Client {
-  let uri = "mongodb+srv://eugenecrabs:@crabscluster.bh0z6ws.mongodb.net/?retryWrites=true&w=majority";
+  // LOADS ENVS
+  dotenv().ok();
+  let (mongo_username,mongo_password,mongo_cluster) =(
+    var("MONGO_USERNAME").expect("MONGO_USERNAME must be set."),
+    var("MONGO_PASSWORD").expect("MONGO_USERNAME must be set."),
+    var("MONGO_CLUSTER").expect("MONGO_USERNAME must be set.")
+  );
+
+  // MONGO URI
+  let uri = format!("mongodb+srv://{}:{}@{}.bh0z6ws.mongodb.net/?retryWrites=true&w=majority",mongo_username,mongo_password,mongo_cluster);
+  println!("{}",uri);
   let client = Client::with_uri_str(uri).await.expect("Failed to initialize client.");
   client
 }
@@ -65,7 +78,7 @@ where Bson: From<T>
   update_query(&col, document, id).await;
 }
 
-// METHOD TO REMOVE ITEM FROM EXISTING ARRAY
+// METHOD TO REMOVE ITEM FROM EXISTING
 
 
 pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
