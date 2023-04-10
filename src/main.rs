@@ -4,12 +4,9 @@ pub mod types;
 pub mod utils;
 pub mod db;
 pub mod repository;
-use mongodb::bson::{Bson, doc};
-use mongodb::{Client, bson};
+use mongodb::bson::{doc};
 use rocket::State;
 use rocket::serde::{json::Json};
-use models::form::Form;
-use models::input::Input;
 use models::select::Select;
 use models::option::OptionSelect;
 use models::option::OptionSelectReceive;
@@ -17,20 +14,13 @@ use models::option::OptionSelectReceive;
 use db::create_connection;
 use db::insert_doc;
 use db::get_by_id;
-use db::delete_by_id;
-use db::update_doc;
 use db::update_push;
 use db::get_all;
 use repository::map;
-use mongodb::bson::oid::ObjectId;
-use rocket::response::{self, Responder, Response, status};
 use utils::ReturnId;
 use utils::StateCustom;
 use utils::ReturnError;
 use utils::string_to_object_id;
-
-
-struct Client_Db{c:Client}
 
 #[macro_use]
 extern crate rocket;
