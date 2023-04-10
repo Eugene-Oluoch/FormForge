@@ -3,7 +3,7 @@ use mongodb::{bson::{oid::ObjectId, Document, doc, Bson}};
 use crate::utils::string_to_object_id;
 
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct OptionSelect{
   pub select_id:Option<ObjectId>,
   pub selected:Option<bool>,
