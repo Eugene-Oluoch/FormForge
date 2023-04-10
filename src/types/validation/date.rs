@@ -3,8 +3,7 @@ use serde::{Serialize, Deserialize};
 pub struct Date{
   value:String,
   min:String,
-  max:String,
-  steps:String
+  max:String
 }
 
 impl Date {
@@ -12,8 +11,7 @@ impl Date {
     Self {
       value:"default".to_string(),
       min:"10".to_string(),
-      max:"20".to_string(),
-      steps:"hello".to_string()
+      max:"20".to_string()
     }
   }
 }
