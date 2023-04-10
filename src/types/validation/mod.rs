@@ -1,55 +1,53 @@
 pub mod checkbox;
 pub mod color;
 pub mod date;
-pub mod datetimelocal;
 pub mod email;
 pub mod file;
 pub mod month;
-pub mod number;
 pub mod password;
 pub mod radio;
-pub mod range;
-pub mod tel;
 pub mod text;
-pub mod time;
 pub mod url;
-pub mod week;
 use serde::{Serialize, Deserialize};
 use checkbox::CheckBox;
 use color::Color;
 use date::Date;
-use datetimelocal::DateTimeLocal;
 use email::Email;
 use file::File;
 use month::Month;
-use number::Number;
 use password::Password;
 use radio::Radio;
-use range::Range;
-use tel::Tel;
 use text::Text;
 use url::Url;
-use week::Week;
-use time::Time;
+
+
+/*
+Validation that share similar fields
+* Date , Datetimelocal
+* Month, Number, Range, Time, Week
+* Tel, Url
+
+
+*/
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Validation{
   Checkbox(CheckBox),
   Color(Color),
   Date(Date),
-  Datetimelocal(DateTimeLocal),
+  Datetimelocal(Date),
   Email(Email),
   File(File),
   Month(Month),
-  Number(Number),
+  Number(Month),
   Password(Password),
   Radio(Radio),
-  Range(Range),
-  Tel(Tel),
+  Range(Month),
+  Tel(Url),
   Text(Text),
   Url(Url),
-  Week(Week),
-  Time(Time)
+  Week(Month),
+  Time(Month)
 }
 
 
@@ -60,17 +58,17 @@ impl Validation{
       "checkbox" => Some(Validation::Checkbox(CheckBox::new())),
       "date" => Some(Validation::Date(Date::new())),
       "email" => Some(Validation::Email(Email::new())),
-      "number" => Some(Validation::Number(Number::new())),
+      "number" => Some(Validation::Number(Month::new())),
       "password" => Some(Validation::Password(Password::new())),
-      "range" => Some(Validation::Range(Range::new())),
-      "tel" => Some(Validation::Tel(Tel::new())),
+      "range" => Some(Validation::Range(Month::new())),
+      "tel" => Some(Validation::Tel(Url::new())),
       "text" => Some(Validation::Text(Text::new())),
-      "time" => Some(Validation::Time(Time::new())),
+      "time" => Some(Validation::Time(Month::new())),
       "url" => Some(Validation::Url(Url::new())),
-      "week" => Some(Validation::Week(Week::new())),
+      "week" => Some(Validation::Week(Month::new())),
       "file" => Some(Validation::File(File::new())),
       "month" => Some(Validation::Month(Month::new())),
-      "datetime-local" => Some(Validation::Datetimelocal(DateTimeLocal::new())),
+      "datetime-local" => Some(Validation::Datetimelocal(Date::new())),
       _=>None
     }
     }
@@ -125,16 +123,16 @@ impl Validation{
       }
     }
 
-    pub fn into_range(self) -> Range {
-      if let Validation::Range(value) = self {
+    pub fn into_range(self) -> Month {
+      if let Validation::Month(value) = self {
           value
       }else{
         panic!("Text");
       }
     }
 
-    pub fn into_tel(self) -> Tel {
-      if let Validation::Tel(value) = self {
+    pub fn into_tel(self) -> Url {
+      if let Validation::Url(value) = self {
           value
       }else{
         panic!("Text");
@@ -149,8 +147,8 @@ impl Validation{
       }
     }
 
-    pub fn into_time(self) -> Time {
-      if let Validation::Time(value) = self {
+    pub fn into_time(self) -> Month {
+      if let Validation::Month(value) = self {
           value
       }else{
         panic!("Text");
@@ -165,8 +163,8 @@ impl Validation{
       }
     }
 
-    pub fn into_week(self) -> Week {
-      if let Validation::Week(value) = self {
+    pub fn into_week(self) -> Month {
+      if let Validation::Month(value) = self {
           value
       }else{
         panic!("Text");

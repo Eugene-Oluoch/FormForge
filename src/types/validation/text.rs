@@ -3,16 +3,14 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Text{
   pub minlength:Option<i32>,
-  pub maxlength:Option<i32>,
-  pub size:Option<String>
+  pub maxlength:Option<i32>
 }
 
 impl Text{
   pub fn new() -> Self{
     Self {
       minlength:None,
-      maxlength:None,
-      size:None
+      maxlength:None
     }
   }
 
