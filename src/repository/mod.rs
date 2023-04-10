@@ -4,11 +4,13 @@ use crate::utils::string_to_object_id;
 
 
 pub fn map(name:&str, id:&str) -> Vec<Document>{
-  let hash_map = pipelines(id);
-  hash_map.get(name).unwrap().to_vec()
+  // RETRIEVES A PIPELINE BASED IN THE NAME SUPPLIED
+  pipelines(id).get(name).unwrap().to_vec()
 }
 
 fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
+
+  // FORM PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   let form_pipeline = vec![
     doc! {
       "$match": {
@@ -44,6 +46,7 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
     }
   ];
 
+  // SELECT PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   let select_pipeline = vec![
     doc! {
         "$match": {
