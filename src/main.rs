@@ -4,6 +4,7 @@ pub mod types;
 pub mod utils;
 pub mod db;
 pub mod repository;
+pub mod urls;
 use mongodb::bson::{doc};
 use rocket::State;
 use rocket::serde::{json::Json};
@@ -22,7 +23,8 @@ use utils::StateCustom;
 use utils::ReturnError;
 use utils::string_to_object_id;
 
-
+// URL IMPORTS
+use urls::options::get_option_by_id;
 
 #[macro_use]
 extern crate rocket;
@@ -32,7 +34,7 @@ async fn main() {
     let _ =rocket::build()
       .manage(StateCustom::new(client))
       .mount("/", routes![welcome])
-      .mount("/options/", routes![])
+      .mount("/options/", routes![get_option_by_id])
       .mount("/selects/",routes![])
       .mount("/forms/",routes![])
       .launch()
