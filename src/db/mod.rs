@@ -13,7 +13,7 @@ async fn create_collection<T>(client:&Client,db_name:&str, collection:&str) -> C
 }
 
 pub async fn create_connection() -> Client {
-  let uri = "mongodb+srv://eugenecrabs:Greenland@crabscluster.bh0z6ws.mongodb.net/?retryWrites=true&w=majority";
+  let uri = "mongodb+srv://eugenecrabs:@crabscluster.bh0z6ws.mongodb.net/?retryWrites=true&w=majority";
   let client = Client::with_uri_str(uri).await.expect("Failed to initialize client.");
   client
 }
