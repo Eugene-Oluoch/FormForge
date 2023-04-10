@@ -1,0 +1,67 @@
+use std::collections::HashMap;
+use mongodb::{bson::{ doc, Document}};
+use crate::utils::string_to_object_id;
+
+
+pub fn map(name:&str, id:&str) -> Vec<Document>{
+  let hash_map = pipelines(id);
+  hash_map.get(name).unwrap().to_vec()
+}
+
+fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
+  let form_pipeline = vec![
+    doc! {
+      "$match": {
+          "_id": string_to_object_id(id)
+      }
+    },
+    doc! {
+      "$lookup": {
+        "from": "inputs",
+        "localField": "inputs",
+        "foreignField": "_id",
+        "as": "inputs"
+      }
+    },
+    doc! {
+      "$lookup": {
+      "from": "selects",
+      "localField": "selects",
+      "foreignField": "_id",
+      "as": "selects"
+    }
+    },
+    doc! {
+      "$unwind":"$selects"
+    },
+    doc! {
+      "$lookup": {
+        "from": "options",
+        "localField": "selects.options",
+        "foreignField": "_id",
+        "as": "selects.options"
+      }
+    }
+  ];
+
+  let select_pipeline = vec![
+    doc! {
+        "$match": {
+          "_id": string_to_object_id(id)
+        }
+    },
+    doc! {
+        "$lookup": {
+        "from": "options",
+        "localField": "options",
+        "foreignField": "_id",
+        "as": "options"
+      }
+    },
+  ];
+
+  let mut pipeline_value = HashMap::new();
+  let _ = &pipeline_value.insert("select", select_pipeline);
+  let _ = &pipeline_value.insert("form", form_pipeline);
+  pipeline_value
+}

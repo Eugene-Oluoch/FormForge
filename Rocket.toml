@@ -1,0 +1,14 @@
+[default]
+port = 8180
+# address="0.0.0.0"
+# workers
+# ident
+# keep_alive
+# log_level
+# temp_dir
+# cli_colors
+# secret_key
+# tls
+# limits
+# shutdown
+[release]
