@@ -16,6 +16,9 @@ use db::create_connection;
 // URL IMPORTS
 use urls::options::{get_option_by_id,add_option};
 
+
+// NOTE -> You might encounter String types but am planning to convert to &str
+
 #[macro_use]
 extern crate rocket;
 #[rocket::main]
