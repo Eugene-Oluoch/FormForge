@@ -20,8 +20,8 @@ pub async fn create_connection() -> Client {
   dotenv().ok();
   let (mongo_username,mongo_password,mongo_cluster) =(
     var("MONGO_USERNAME").expect("MONGO_USERNAME must be set."),
-    var("MONGO_PASSWORD").expect("MONGO_USERNAME must be set."),
-    var("MONGO_CLUSTER").expect("MONGO_USERNAME must be set.")
+    var("MONGO_PASSWORD").expect("MONGO_PASSWORD must be set."),
+    var("MONGO_CLUSTER").expect("MONGO_CLUSTER must be set.")
   );
 
   // MONGO URI
