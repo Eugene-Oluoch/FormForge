@@ -32,6 +32,7 @@ async fn main() {
       .mount("/", routes![welcome])
       .mount("/options/", routes![add_option])
       .mount("/selects/",routes![get_select])
+      .mount("/forms/",routes![])
       .launch()
       .await;
 }
