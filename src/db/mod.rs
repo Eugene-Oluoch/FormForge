@@ -57,7 +57,6 @@ where T:Serialize
 // GET DOCUMENT AND ALL RELATIONSHIP REFERENCE
 pub async fn get_all<T>(client:&Client,db_name:&str,collection:&str,pipeline:Vec<Document>) -> Document{
   let col:Collection<T> = create_collection(client, db_name, collection).await;
-
   col.aggregate(pipeline, None).await.unwrap().deserialize_current().unwrap()
 }
 

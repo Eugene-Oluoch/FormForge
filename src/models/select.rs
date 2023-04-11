@@ -1,6 +1,7 @@
 use crate::{utils::string_to_object_id};
 use mongodb::bson::{oid::ObjectId, Bson, Document};
 use serde::{Serialize, Deserialize};
+use crate::{OptionSelect};
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
@@ -72,6 +73,8 @@ impl Select {
   }
 
 }
+
+
 impl From<Select> for Bson {
   fn from(option: Select) -> Self {
     let mut doc = Document::new();
