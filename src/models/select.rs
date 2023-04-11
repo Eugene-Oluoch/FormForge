@@ -1,19 +1,28 @@
-use crate::{utils::string_to_object_id};
-use mongodb::bson::{oid::ObjectId, Bson, Document};
+use mongodb::bson::{Bson, Document};
 use serde::{Serialize, Deserialize};
-use crate::{OptionSelect};
+use crate::OptionSelect;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
-  form_id:Option<ObjectId>,
+  form_id:Option<String>,
   multiple:bool,
   size:Option<String>,
-  options:Vec<ObjectId>,
+  options:Vec<String>,
   validation:Option<String>,
   step:Option<i32>,
-  #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-  id: Option<ObjectId>
+  _id: Option<String>
 }
+
+pub struct SelectReceive{
+  form_id:Option<String>,
+  multiple:bool,
+  size:Option<String>,
+  options:Vec<OptionSelect>,
+  validation:Option<String>,
+  step:Option<i32>,
+  _id: Option<String>
+}
+
 
 impl Select {
   pub fn new() -> Self{
@@ -23,7 +32,7 @@ impl Select {
       options: vec![],
       validation:None,
       step:None,
-      id:None,
+      _id:None,
       form_id:None
     }
   }
@@ -42,7 +51,7 @@ impl Select {
   }
 
   pub fn set_form_id(&mut self,id:&str) -> &mut Self{
-    self.form_id = Some(string_to_object_id(id));
+    self.form_id = Some(id.to_string());
     self
   }
 
@@ -54,22 +63,18 @@ impl Select {
   pub fn build(self) -> Self{self}
 
   pub fn add_option(&mut self, id:&str) -> &mut Self{
-    self.options.push(string_to_object_id(id));
+    self.options.push(id.to_string());
     self
   }
 
   // Getters
-  pub fn get_id(&self) -> Option<ObjectId>{
-    self.id
+  pub fn get_id(&self) -> &Option<String>{
+    &self._id
   }
 
 
-  pub fn get_options(&self)->Vec<String>{
-    let mut options = Vec::new();
-    for option in &self.options{
-      options.push(option.to_hex());
-    }
-    options
+  pub fn get_options(&self)->&Vec<String>{
+    &self.options
   }
 
 }
@@ -85,7 +90,7 @@ impl From<Select> for Bson {
         doc.insert("step", step);
     }
 
-    if let Some(id) = option.id {
+    if let Some(id) = option._id {
       doc.insert("_id", id);
     }
     

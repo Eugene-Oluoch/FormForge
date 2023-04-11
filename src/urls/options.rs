@@ -43,8 +43,8 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
 
   // UPDATE OPTIONS IN THE SELECT
   if let Some(select_id) = option.get_select_id(){
-    let document = doc! { "$push": { "options": string_to_object_id(&option_id) } };
-    update_push::<Select>(&client.client, "crabs_test", "selects", document, select_id.as_str()).await;
+    let document = doc! { "$push": { "options": &option_id } };
+    update_push::<Select>(&client.client, "crabs_test", "selects", document, select_id).await;
   }
 
   Ok(Json(ReturnId::new(option_id.trim_matches('"').to_string())))

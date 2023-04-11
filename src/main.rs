@@ -6,7 +6,7 @@ pub mod db;
 pub mod repository;
 pub mod urls;
 use mongodb::bson::{doc};
-use models::select::{Select};
+use models::select::{Select,SelectReceive};
 use models::option::{OptionSelect};
 use utils::StateCustom;
 
