@@ -50,7 +50,7 @@ where T:Serialize
 + Unpin + Send + Sync
 {
   let col:Collection<T> = create_collection(client, db_name, collection).await;
-  col.find_one(doc! {"_id": string_to_object_id(id)},None).await
+  col.find_one(doc! {"_id": id},None).await
 }
 
 
@@ -82,7 +82,7 @@ where Bson: From<T>
 
 pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
   println!("{:?}",col
-  .update_one(doc! {"_id": string_to_object_id(id)}, update, None).await.unwrap());
+  .update_one(doc! {"_id": id}, update, None).await.unwrap());
 }
 
 
@@ -90,5 +90,5 @@ pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
 
 pub async fn delete_by_id(client:&Client,db_name:&str, collection:&str, id:&str) {
   let col:Collection<OptionSelect> = create_collection(client, db_name, collection).await;
-  println!("{:?}",&col.delete_one(doc! {"_id":string_to_object_id(id)}, None).await);
+  println!("{:?}",&col.delete_one(doc! {"_id":id}, None).await);
 }
