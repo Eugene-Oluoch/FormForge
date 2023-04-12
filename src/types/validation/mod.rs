@@ -4,14 +4,22 @@ FIELDS Excluding checkbox and radio (TO BE HANDLED DIFFERENTLY)
 
 Validation Rules For Input types 
 * Number | Range | Date | Datetimelocal {
-  minlength
-  maxlength
+  minlength,
+  maxlength,
+  required
 }
 
 * Url | Password | Text | Email | Tel {
   minlength,
   maxlength,
-  pattern
+  pattern,
+  required
+}
+
+* Month | Time | Week | Date | Datelocaltime {
+  min -> string mapping,
+  max -> string mapping,
+  required
 }
 
 
