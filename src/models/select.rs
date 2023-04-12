@@ -13,6 +13,7 @@ pub struct Select{
   _id: Option<String>
 }
 
+#[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct SelectReceive{
   form_id:Option<String>,
   multiple:bool,
@@ -21,6 +22,13 @@ pub struct SelectReceive{
   validation:Option<String>,
   step:Option<i32>,
   _id: Option<String>
+}
+
+impl SelectReceive {
+    pub fn set_id(&mut self,id:String)-> &mut Self{
+      self._id = Some(id);
+      self
+    }
 }
 
 
