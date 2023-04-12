@@ -8,6 +8,7 @@ use crate::{Select,SelectReceive};
 use crate::repository::map;
 use uuid::Uuid;
 
+// IGNORE EXPECTS -> TO BE HANDLES LATER
 
 #[get("/<id>")]
 pub async fn get_select_by_id(id:String,client:&State<StateCustom>) -> Result<Json<SelectReceive>,String>{
@@ -18,10 +19,12 @@ pub async fn get_select_by_id(id:String,client:&State<StateCustom>) -> Result<Js
     Err("Select with the given id doesn't exist 🙁".to_string())
   }
 }
-/* 
-Handle case where form_id is supplied
-*/
 
+/* 
+Handle case where form_id is supplied:
+ -> Confirm if form exists
+ -> Update form when select is created
+*/
 #[post("/add",data="<data>")]
 pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> Result<&str, &str>{
   let mut select = data.0;
