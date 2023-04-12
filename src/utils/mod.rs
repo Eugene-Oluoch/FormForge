@@ -45,4 +45,16 @@ impl  ReturnError {
     }
   }
 }
+#[derive(Serialize,Deserialize)]
+pub struct ReturnMessage<'a>{
+  message:&'a str
+}
+
+impl <'a> ReturnMessage <'a>{
+  pub fn new(message:&'a str) -> Self{
+    Self {
+      message
+    }
+  }
+}
  
