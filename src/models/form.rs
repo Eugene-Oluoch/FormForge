@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use mongodb::bson::Bson;
 use mongodb::bson::Document;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
   inputs: Vec<String>,
   selects: Vec<String>,
@@ -31,6 +31,11 @@ impl Form{
 
   pub fn set_name(&mut self,name:String) -> & mut Self{
     self.name = name;
+    self
+  }
+
+  pub fn set_id(&mut self, id:String) -> &mut Self{
+    self._id = Some(id.to_string());
     self
   }
 

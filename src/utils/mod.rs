@@ -1,7 +1,11 @@
-use mongodb::bson::oid::ObjectId;
 use serde::{Serialize, Deserialize};
 use mongodb::{Client};
 
+
+
+pub fn trim_quotes(string:&String) -> String{
+  string.trim_matches('"').to_string()
+}
 
 pub struct StateCustom{
   pub client:Client

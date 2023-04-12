@@ -25,9 +25,14 @@ pub struct SelectReceive{
 }
 
 impl SelectReceive {
+    // SETTERS
     pub fn set_id(&mut self,id:String)-> &mut Self{
       self._id = Some(id);
       self
+    }
+    // GETTERS
+    pub fn get_form_id(&self) -> &Option<String>{
+      &self.form_id
     }
 }
 
