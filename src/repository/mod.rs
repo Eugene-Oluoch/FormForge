@@ -14,7 +14,7 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
   let form_pipeline = vec![
     doc! {
       "$match": {
-          "_id": string_to_object_id(id)
+          "_id": id
       }
     },
     doc! {
@@ -49,9 +49,9 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
   // SELECT PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   let select_pipeline = vec![
     doc! {
-        "$match": {
-          "_id": string_to_object_id(id)
-        }
+      "$match": {
+        "_id": id
+    }
     },
     doc! {
         "$lookup": {
