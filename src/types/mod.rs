@@ -2,10 +2,6 @@ pub mod validation;
 use serde::{Serialize, Deserialize};
 
 // NOTE THIS IMPLEMENTATION ISN'T THE FINAL ONE -> TESTING PURPOSES
-
-
-
-
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub enum Types{
   Color,

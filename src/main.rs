@@ -6,18 +6,18 @@ pub mod db;
 pub mod repository;
 pub mod urls;
 use mongodb::bson::{doc};
-use models::form::Form;
-use models::select::{Select,SelectReceive};
-use models::option::{OptionSelect};
 use utils::StateCustom;
-
-// DB IMPORTS
 use db::create_connection;
-
-// URL IMPORTS
-use urls::options::{get_option_by_id,add_option,delete_option};
-use urls::selects::{get_select_by_id,add_select};
-use urls::forms::{add_form};
+use models::{
+  form::{Form},
+  select::{Select,SelectReceive},
+  option::{OptionSelect}
+};
+use urls::{
+  options::{get_option_by_id,add_option,delete_option},
+  selects::{get_select_by_id,add_select},
+  forms::{add_form}
+};
 
 // bson::from_bson(bson::Bson::Document(doc)).unwrap() -> To convert mongo Document to struct
 // NOTE -> You might encounter String types but am planning to convert to &str
