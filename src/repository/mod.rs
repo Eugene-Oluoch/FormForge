@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 use mongodb::{bson::{ doc, Document}};
-use crate::utils::string_to_object_id;
-
 
 pub fn map(name:&str, id:&str) -> Vec<Document>{
   // RETRIEVES A PIPELINE BASED IN THE NAME SUPPLIED
