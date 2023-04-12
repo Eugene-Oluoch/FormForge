@@ -1,18 +1,14 @@
-use crate::utils::string_to_object_id;
-use rocket::request::FromParam;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::Bson;
 use mongodb::bson::Document;
-use mongodb::bson::oid::ObjectId;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Form {
-  inputs: Vec<ObjectId>,
-  selects: Vec<ObjectId>,
+  inputs: Vec<String>,
+  selects: Vec<String>,
   steps:Option<i32>,
   name:String,
-  #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-  id: Option<ObjectId>
+  _id: Option<String>
 }
 
 
@@ -23,7 +19,7 @@ impl Form{
         steps: None,
         name: String::from("default"),
         selects: vec![],
-        id:None
+        _id:None
     }
   }
 
@@ -41,12 +37,12 @@ impl Form{
   pub fn build(&self){}
 
   pub fn add_input(&mut self,id:&str) -> &mut Self{
-    self.inputs.push(string_to_object_id(&id));
+    self.inputs.push(id.to_string());
     self
   }
 
   pub fn add_select(&mut self,id:&str) -> &mut Self{
-    self.selects.push(string_to_object_id(&id));
+    self.selects.push(id.to_string());
     self
   }
 
@@ -87,7 +83,7 @@ impl From<Form> for Bson {
         doc.insert("steps", steps);
     }
 
-    if let Some(id) = option.id {
+    if let Some(id) = option._id {
       doc.insert("_id", id);
     }
     
