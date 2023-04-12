@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
-use mongodb::bson::Bson;
-use mongodb::bson::Document;
+use mongodb::bson::{Bson,Document};
+
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
