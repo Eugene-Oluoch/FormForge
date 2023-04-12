@@ -3,10 +3,6 @@ use serde::{Serialize, Deserialize};
 use mongodb::{Client};
 
 
-pub fn string_to_object_id(id:&str) -> ObjectId{
-  ObjectId::parse_str(&id.to_string()).unwrap()
-}
-
 pub struct StateCustom{
   pub client:Client
 }
@@ -25,21 +21,21 @@ pub struct ReturnId {
   id:String
 }
 
-impl ReturnId {
-  pub fn new(id:String) -> Self{
+impl  ReturnId  {
+  pub fn new(id:&str) -> Self{
     Self {
-      id
+      id:id.to_string()
     }
   }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ReturnError{
-  error:String
+pub struct ReturnError<'a>{
+  error:&'a str
 }
 
-impl  ReturnError {
-  pub fn new(error:String) -> Self{
+impl <'a> ReturnError <'a> {
+  pub fn new(error:&'a str) -> Self{
     Self {
       error
     }
