@@ -26,7 +26,7 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
   let mut select = data.0;
   
   // GENERATE AN ID FOR THE SELECT FIELD
-  select.set_id(Uuid::new_v4().to_string());
+  & mut select.set_id(Uuid::new_v4().to_string());
 
 
   let results = insert_doc(&client.client, "crabs_test", "selects", &select).await;
