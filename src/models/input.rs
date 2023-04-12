@@ -3,11 +3,10 @@ use types::validation::Validation;
 use types::Types;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{oid::ObjectId, Bson, Document};
-use types::validation::color;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
-  form_id:Option<ObjectId>,
+  form_id:Option<String>,
   type_identifier:types::Types,
   disabled:bool,
   placeholder:Option<String>,
@@ -16,8 +15,7 @@ pub struct Input{
   name:String,
   pub validation:Validation,
   step:Option<i32>,
-  #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-  id: Option<ObjectId>
+  _id: Option<String>
 }
 
 
@@ -33,7 +31,7 @@ impl Input  {
       name:String::from("name"),
       validation:Validation::Color(Color::new()),
       step:None,
-      id:None
+      _id:None
     }
   }
 
@@ -78,8 +76,8 @@ impl Input  {
   pub fn build(&self){}
 
   // Getters
-  pub fn get_id(&self) -> Option<ObjectId>{
-    self.id
+  pub fn get_id(&self) -> &Option<String>{
+    &self._id
   }
 
 
@@ -115,7 +113,7 @@ impl From<Input> for Bson {
         doc.insert("step", step);
     }
 
-    if let Some(id) = option.id {
+    if let Some(id) = option._id {
       doc.insert("_id", id);
     }
     

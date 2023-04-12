@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
-use mongodb::{bson::{oid::ObjectId, Document, doc, Bson}};
-use crate::utils::string_to_object_id;
+use mongodb::{bson::{Document, doc, Bson}};
 
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]

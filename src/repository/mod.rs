@@ -62,7 +62,7 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
   ];
 
   let mut pipeline_value = HashMap::new();
-  pipeline_value.insert("select", select_pipeline);
-  pipeline_value.insert("form", form_pipeline);
+  let _ = &mut pipeline_value.insert("select", select_pipeline);
+  let _ = &mut pipeline_value.insert("form", form_pipeline);
   pipeline_value
 }
