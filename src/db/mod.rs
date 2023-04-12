@@ -1,10 +1,6 @@
-use std::fmt::format;
-
 use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult}, bson::{doc, Bson, Document}, error::Error};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
-use crate::OptionSelect;
-use crate::utils::string_to_object_id;
 use dotenv::dotenv;
 use std::env::var;
 
