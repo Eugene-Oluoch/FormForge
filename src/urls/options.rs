@@ -1,5 +1,5 @@
-use crate::utils::{ReturnError, StateCustom, string_to_object_id, ReturnId};
-use crate::db::{get_by_id,insert_doc, update_push};
+use crate::utils::{ReturnError, StateCustom,ReturnId,ReturnMessage};
+use crate::db::{get_by_id,insert_doc, update_push,delete_by_id};
 use crate::OptionSelect;
 use crate::Select;
 use mongodb::bson::doc;
@@ -20,7 +20,10 @@ pub async fn get_option_by_id(id:&str,client:&State<StateCustom>) -> Result<Json
   }
 }
 
-
+/* 
+THINKING OF ADDING THE SELECT ID FROM USER TO AN ARRAY -
+SO THAT ONE OPTION FIELD CAN BE SHARED AMONG MANY OPTIONS
+*/
 #[post("/add",data="<data>")]
 pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> Result<Json<ReturnId>,Json<ReturnError>>{
   let mut option = data.0;
@@ -48,4 +51,22 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
   }
 
   Ok(Json(ReturnId::new(option_id.trim_matches('"').to_string())))
+}
+
+
+/*  
+BEFORE DELETING AN OPTION:
+-> Delete it from all select field that it has relation to
+*/
+#[delete("/<id>")]
+pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError>>{
+  let delete_results = delete_by_id::<OptionSelect>(&client.client, "crabs_test", "options", id).await;
+  if let Ok(results) = delete_results{
+    match results.deleted_count {
+      0 => Err(Json(ReturnError::new("Option with the given id doesn't exist 🙁".to_string()))),
+      _=> Ok(Json(ReturnMessage::new("Deleted Successfully 🙂")))
+    }
+  }else {
+    Err(Json(ReturnError::new("Failed to Delete".to_string())))
+  }
 }
