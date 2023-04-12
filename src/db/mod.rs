@@ -1,6 +1,6 @@
 use std::fmt::format;
 
-use mongodb::{Client, Collection, results::{InsertOneResult}, bson::{doc, Bson, Document}, error::Error};
+use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult}, bson::{doc, Bson, Document}, error::Error};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
 use crate::OptionSelect;
@@ -55,9 +55,13 @@ where T:Serialize
 
 
 // GET DOCUMENT AND ALL RELATIONSHIP REFERENCE
-pub async fn get_all<T>(client:&Client,db_name:&str,collection:&str,pipeline:Vec<Document>) -> Document{
+pub async fn get_all<T>(client:&Client,db_name:&str,collection:&str,pipeline:Vec<Document>) -> Result<Document,Error>{
   let col:Collection<T> = create_collection(client, db_name, collection).await;
-  col.aggregate(pipeline, None).await.unwrap().deserialize_current().unwrap()
+  let response = col.aggregate(pipeline, None).await;
+  match response {
+    Ok(cursor) => cursor.deserialize_current(),
+    Err(error) => Err(error)
+  }
 }
 
 // UPDATES WILL BE MERGED TO ONE -> NOTE
@@ -88,7 +92,7 @@ pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
 
 
 
-pub async fn delete_by_id(client:&Client,db_name:&str, collection:&str, id:&str) {
-  let col:Collection<OptionSelect> = create_collection(client, db_name, collection).await;
-  println!("{:?}",&col.delete_one(doc! {"_id":id}, None).await);
+pub async fn delete_by_id<T>(client:&Client,db_name:&str, collection:&str, id:&str) -> Result<DeleteResult,Error> {
+  let col:Collection<T> = create_collection(client, db_name, collection).await;
+  col.delete_one(doc! {"_id":id}, None).await
 }
