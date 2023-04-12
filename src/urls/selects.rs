@@ -19,20 +19,21 @@ pub async fn get_select_by_id(id:String,client:&State<StateCustom>) -> Result<Js
   }
 }
 /* 
-
+Handle case where form_id is supplied
 */
+
 #[post("/add",data="<data>")]
 pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> Result<&str, &str>{
   let mut select = data.0;
   
   // GENERATE AN ID FOR THE SELECT FIELD
-  & mut select.set_id(Uuid::new_v4().to_string());
+  let _ = & mut select.set_id(Uuid::new_v4().to_string());
 
 
   let results = insert_doc(&client.client, "crabs_test", "selects", &select).await;
-  if let Ok(result) = results{
-    Ok("Select Added successfully 🙂")
-  } else {
-    Err("Failed to create the select field 🙁")
+
+  match &results {
+    Ok(_) => Ok("Select Added successfully 🙂"),
+    Err(_) => Err("Failed to create the select field 🙁")
   }
 }
