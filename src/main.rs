@@ -6,6 +6,7 @@ pub mod db;
 pub mod repository;
 pub mod urls;
 use mongodb::bson::{doc};
+use models::form::Form;
 use models::select::{Select,SelectReceive};
 use models::option::{OptionSelect};
 use utils::StateCustom;
@@ -16,6 +17,7 @@ use db::create_connection;
 // URL IMPORTS
 use urls::options::{get_option_by_id,add_option,delete_option};
 use urls::selects::{get_select_by_id,add_select};
+use urls::forms::{add_form};
 
 // bson::from_bson(bson::Bson::Document(doc)).unwrap() -> To convert mongo Document to struct
 // NOTE -> You might encounter String types but am planning to convert to &str
@@ -30,7 +32,7 @@ async fn main() {
       .mount("/", routes![welcome])
       .mount("/options/", routes![get_option_by_id,add_option,delete_option])
       .mount("/selects/",routes![get_select_by_id,add_select])
-      .mount("/forms/",routes![])
+      .mount("/forms/",routes![add_form])
       .launch()
       .await;
 }

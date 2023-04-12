@@ -1,8 +1,7 @@
-use crate::types::{self, validation::color::Color};
-use types::validation::Validation;
+use crate::types::{self};
 use types::Types;
 use serde::{Serialize, Deserialize};
-use mongodb::bson::{oid::ObjectId, Bson, Document};
+use mongodb::bson::{Bson, Document};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
@@ -13,7 +12,7 @@ pub struct Input{
   label:Option<String>,
   required:bool,
   name:String,
-  pub validation:Validation,
+  pub validation:Option<String>,
   step:Option<i32>,
   _id: Option<String>
 }
@@ -29,7 +28,7 @@ impl Input  {
       required:false,
       disabled: false,
       name:String::from("name"),
-      validation:Validation::Color(Color::new()),
+      validation:Some(String::from("To hold for now")),
       step:None,
       _id:None
     }
@@ -38,7 +37,7 @@ impl Input  {
   // Setters
   pub fn set_type(&mut self,option:&str) -> &mut Self{
     self.type_identifier = Types::map(option).unwrap();
-    self.validation = Validation::map(option).unwrap();
+    // self.validation = Validation::map(option).unwrap();
     self
   }
 
@@ -92,9 +91,9 @@ impl From<Input> for Bson {
       doc.insert("disabled", option.disabled);
       doc.insert("step", option.step);
 
-      if option.type_identifier == types::Types::Color{
-        doc.insert("validation", Validation::into_color(option.validation));
-      }
+      // if option.type_identifier == types::Types::Color{
+      //   doc.insert("validation", Validation::into_color(option.validation));
+      // }
     
 
       if let Some(placeholder) = option.placeholder {
