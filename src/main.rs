@@ -14,8 +14,8 @@ use utils::StateCustom;
 use db::create_connection;
 
 // URL IMPORTS
-use urls::options::{get_option_by_id,add_option};
-use urls::selects::{get_select_by_id};
+use urls::options::{get_option_by_id,add_option,delete_option};
+use urls::selects::{get_select_by_id,add_select};
 
 // bson::from_bson(bson::Bson::Document(doc)).unwrap() -> To convert mongo Document to struct
 // NOTE -> You might encounter String types but am planning to convert to &str
@@ -28,8 +28,8 @@ async fn main() {
     let _ =rocket::build()
       .manage(StateCustom::new(client))
       .mount("/", routes![welcome])
-      .mount("/options/", routes![get_option_by_id,add_option])
-      .mount("/selects/",routes![get_select_by_id])
+      .mount("/options/", routes![get_option_by_id,add_option,delete_option])
+      .mount("/selects/",routes![get_select_by_id,add_select])
       .mount("/forms/",routes![])
       .launch()
       .await;
