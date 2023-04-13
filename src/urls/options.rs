@@ -8,10 +8,10 @@ use rocket::State;
 use rocket::futures::StreamExt;
 use rocket::serde::json::Json;
 use uuid::Uuid;
-use crate::repository::pipelines::remove_option_from_selects;
 
 
-// NOTE -> MUST CATCH ERROR THROWN BY GET_BY_ID
+// UPDATE ROUTE WILL BE LAST SO AS TO COVER ALL CASES
+
 // CORRECT STATUS CODE HAVEN'T BEEN MAPPED YET
 #[get("/<id>")]
 pub async fn get_option_by_id<'a>(id:&'a str,client:&'a State<StateCustom>) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
@@ -57,10 +57,6 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
 }
 
 
-/*  
-BEFORE DELETING AN OPTION:
--> Delete it from all select field that it has relation to
-*/
 #[delete("/<id>")]
 pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
 
