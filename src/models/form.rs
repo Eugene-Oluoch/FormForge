@@ -4,6 +4,9 @@ use mongodb::bson::{Bson,Document};
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
+  created_at: Option<i64>,
+  updated_at: Option<i64>,
+  archive:Option<bool>,
   inputs: Vec<String>,
   selects: Vec<String>,
   steps:Option<i32>,
@@ -15,6 +18,9 @@ pub struct Form {
 impl Form{
   pub fn new() -> Self{
     Self {
+        created_at: None,
+        updated_at: None,
+        archive:None,
         inputs: vec![],
         steps: None,
         name: String::from("default"),

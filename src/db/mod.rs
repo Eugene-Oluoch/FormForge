@@ -83,8 +83,6 @@ where Bson: From<T>
 }
 
 // METHOD TO REMOVE ITEM FROM EXISTING
-
-
 pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
   println!("{:?}",col
   .update_one(doc! {"_id": id}, update, None).await.unwrap());

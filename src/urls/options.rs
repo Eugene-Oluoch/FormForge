@@ -59,7 +59,6 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
 
 #[delete("/<id>")]
 pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
-
   // DELETE OPTION FROM ALL SELECTS
   let match_selects = doc! {"options":id};
   let delete =doc! {"$pullAll":{"options":[id]}};

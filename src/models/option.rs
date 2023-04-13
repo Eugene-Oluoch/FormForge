@@ -2,8 +2,12 @@ use serde::{Serialize, Deserialize};
 use mongodb::{bson::{Document, doc, Bson}};
 
 
+// ADD ARCHIVE TO HANDLE DELETE -> SOFT DELETE
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct OptionSelect{
+  created_at: Option<i64>,
+  updated_at: Option<i64>,
+  archive:Option<bool>,
   pub select_id:Option<String>,
   pub selected:Option<bool>,
   pub name:Option<String>,
@@ -15,6 +19,9 @@ pub struct OptionSelect{
 impl OptionSelect {
   pub fn new () -> Self{
     Self {
+      created_at: None,
+      updated_at: None,
+      archive:None,
       select_id:None,
       selected:Some(false),
       name:None,
