@@ -60,6 +60,11 @@ pub async fn get_all<T>(client:&Client,db_name:&str,collection:&str,pipeline:Vec
   }
 }
 
+pub async fn update_many<T>(client:&Client,db_name:&str,collection:&str,match_:Document,action:Document,id:&str){
+  let col:Collection<T> = create_collection(client, db_name, collection).await;
+  println!("{:?}",col.update_many(match_,action,None).await.expect("testing"));
+}
+
 // UPDATES WILL BE MERGED TO ONE -> NOTE
 pub async fn update_doc<T>(client:&Client,db_name:&str, collection:&str,option:T, id:&str)
 where Bson: From<T>
