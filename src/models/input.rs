@@ -5,6 +5,9 @@ use mongodb::bson::{Bson, Document};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
+  created_at: Option<i64>,
+  updated_at: Option<i64>,
+  archive:Option<bool>,
   form_id:Option<String>,
   type_identifier:types::Types,
   disabled:bool,
@@ -21,6 +24,9 @@ pub struct Input{
 impl Input  {
   pub fn new() -> Self{
     Self {
+      created_at: None,
+      updated_at: None,
+      archive:None,
       form_id:None,
       type_identifier:types::Types::Text,
       placeholder:None,

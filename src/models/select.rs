@@ -4,6 +4,9 @@ use crate::OptionSelect;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
+  created_at: Option<i64>,
+  updated_at: Option<i64>,
+  archive:Option<bool>,
   form_id:Option<String>,
   multiple:bool,
   size:Option<String>,
@@ -15,6 +18,9 @@ pub struct Select{
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct SelectReceive{
+  created_at: Option<i64>,
+  updated_at: Option<i64>,
+  archive:Option<bool>,
   form_id:Option<String>,
   multiple:bool,
   size:Option<String>,
@@ -40,6 +46,9 @@ impl SelectReceive {
 impl Select {
   pub fn new() -> Self{
     Self {
+      created_at: None,
+      updated_at: None,
+      archive:None,
       multiple: false,
       size:None,
       options: vec![],
