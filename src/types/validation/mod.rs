@@ -3,7 +3,7 @@ FIELDS Excluding checkbox and radio (TO BE HANDLED DIFFERENTLY)
 * Month, Time, Week 
 
 Validation Rules For Input types 
-* Number | Range | Date | Datetimelocal {
+* Number | Range  {
   minlength,
   maxlength,
   required
