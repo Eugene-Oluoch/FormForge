@@ -1,11 +1,14 @@
 use crate::utils::{ReturnError, StateCustom,ReturnId,ReturnMessage};
-use crate::db::{get_by_id,insert_doc, update_push,delete_by_id};
+use crate::db::{get_by_id,insert_doc, update_push,delete_by_id,get_all,update_many};
 use crate::OptionSelect;
 use crate::Select;
+use mongodb::Collection;
 use mongodb::bson::doc;
 use rocket::State;
+use rocket::futures::StreamExt;
 use rocket::serde::json::Json;
 use uuid::Uuid;
+use crate::repository::pipelines::remove_option_from_selects;
 
 
 // NOTE -> MUST CATCH ERROR THROWN BY GET_BY_ID
@@ -60,6 +63,13 @@ BEFORE DELETING AN OPTION:
 */
 #[delete("/<id>")]
 pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+
+  // DELETE OPTION FROM ALL SELECTS
+  let match_selects = doc! {"options":id};
+  let delete =doc! {"$pullAll":{"options":[id]}};
+  update_many::<Select>(&client.client, "crabs_test", "selects", match_selects, delete, id).await;
+
+  // OPTION DELETE
   let delete_results = delete_by_id::<OptionSelect>(&client.client, "crabs_test", "options", id).await;
   if let Ok(results) = delete_results{
     match results.deleted_count {
