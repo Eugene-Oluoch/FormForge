@@ -1,3 +1,4 @@
+pub mod pipelines;
 use std::collections::HashMap;
 use mongodb::{bson::{ doc, Document}};
 

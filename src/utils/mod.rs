@@ -2,7 +2,6 @@ use serde::{Serialize, Deserialize};
 use mongodb::{Client};
 
 
-
 pub fn trim_quotes(string:&String) -> String{
   string.trim_matches('"').to_string()
 }
