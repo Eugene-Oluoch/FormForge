@@ -1,17 +1,20 @@
+use std::vec;
+
 use mongodb::bson::{self, from_bson, doc};
-use mongodb::error::Error;
 use rocket::State;
 use rocket::serde::json::Json;
 use crate::models::traits::ResetDefaults;
-use crate::utils::{StateCustom, ReturnError, ReturnId};
-use crate::db::{get_all,insert_doc, get_by_id, update_push};
+use crate::utils::{StateCustom, ReturnError, ReturnId,trim_quotes,ReturnMessage};
+use crate::db::{get_all,insert_doc, get_by_id, update_push,update_one};
 use crate::{Select,SelectReceive};
 use crate::repository::map;
 use crate::Form;
-use uuid::Uuid;
-use crate::utils::{trim_quotes};
+use crate::views::{
+  options::{add_option_view}
+};
 
-// IGNORE EXPECTS -> TO BE HANDLES LATER
+// TODO MAP CORRECT STATUS CODES
+// TODO IGNORE ALL OPTIONS WITH FIELD ARCHIVE SET TO TRUE
 #[get("/<id>")]
 pub async fn get_select_by_id(id:String,client:&State<StateCustom>) -> Result<Json<SelectReceive>,Json<ReturnError>>{
   let document = get_all::<Select>(&client.client, "crabs_test", "selects", map("select",id.as_str())).await;
@@ -40,8 +43,19 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
     }
   }
 
+  let results = insert_doc(&client.client, "crabs_test", "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
 
-  let results = insert_doc(&client.client, "crabs_test", "selects", &select).await.expect("Skip").inserted_id.to_string();
+  // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD
+  let mut options_id:Vec<String> = Vec::new();
+  for option in &mut select.options{
+    option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
+    let result = add_option_view(option, &client.client).await;
+    if let Ok(id) = result{
+      options_id.push(id);
+    }
+  }
+
+
 
   if let Some(form_id) = &select.form_id{
     let document = doc! { "$push": { "selects": trim_quotes(&results) } };
@@ -51,3 +65,14 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
   Ok(Json(ReturnId::new(trim_quotes(&results).as_str())))
 }
 
+
+#[delete("/<id>")]
+pub async fn delete_select<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  let update = doc! { "$set": {"archive":true} };
+  let results = update_one::<Select>(&client.client, "crabs_test", "selects", id, update).await;
+  if let Ok(_) = &results{
+    Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
+  }else {
+    Err(Json(ReturnError::new("Failed to delete 🙁")))
+  }
+}
