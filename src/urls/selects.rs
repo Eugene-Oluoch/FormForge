@@ -1,5 +1,3 @@
-use std::vec;
-
 use mongodb::bson::{self, from_bson, doc};
 use rocket::State;
 use rocket::serde::json::Json;
@@ -45,15 +43,14 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
 
   let results = insert_doc(&client.client, "crabs_test", "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
 
-  // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD
-  let mut options_id:Vec<String> = Vec::new();
+  // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
+  // TODO RC SMART-POINTER 
   for option in &mut select.options{
     option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
-    let result = add_option_view(option, &client.client).await;
-    if let Ok(id) = result{
-      options_id.push(id);
-    }
+    let _ = add_option_view(option, &client.client).await;
   }
+
+
 
 
 
