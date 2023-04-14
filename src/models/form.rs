@@ -4,14 +4,14 @@ use mongodb::bson::{Bson,Document};
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
-  inputs: Vec<String>,
-  selects: Vec<String>,
-  steps:Option<i32>,
-  name:String,
-  _id: Option<String>
+  pub _id: Option<String>,
+  pub name:String,
+  pub inputs: Vec<String>,
+  pub selects: Vec<String>,
+  pub steps:Option<i32>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>
 }
 
 
@@ -28,58 +28,6 @@ impl Form{
         _id:None
     }
   }
-
-  // Setters
-  pub fn set_steps(&mut self,number:&i32) -> & mut Self{
-    self.steps = Some(*number);
-    self
-  }
-
-  pub fn set_name(&mut self,name:String) -> & mut Self{
-    self.name = name;
-    self
-  }
-
-  pub fn set_id(&mut self, id:String) -> &mut Self{
-    self._id = Some(id.to_string());
-    self
-  }
-
-  pub fn build(&self){}
-
-  pub fn add_input(&mut self,id:&str) -> &mut Self{
-    self.inputs.push(id.to_string());
-    self
-  }
-
-  pub fn add_select(&mut self,id:&str) -> &mut Self{
-    self.selects.push(id.to_string());
-    self
-  }
-
-  // Getters
-  pub fn get_name(&self)-> &String{
-    &self.name
-  }
-
-  pub fn get_steps(&self) -> i32{
-    self.steps.unwrap()
-  }
-
-
-  // pub fn get_select(&self, id:Option<ObjectId>) -> &Select{
-  //   self.selects
-  //     .iter()
-  //     .find(| x | x.get_id() == id).unwrap()
-  // }
-
-  // pub fn get_input(&self, id:Option<ObjectId>) -> &Input{
-  //   self.inputs
-  //     .iter()
-  //     .find(| x |  x.get_id() == id)
-  //     .unwrap()
-  // }
-
 
 }
 

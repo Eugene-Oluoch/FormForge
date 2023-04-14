@@ -4,42 +4,30 @@ use crate::OptionSelect;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
-  form_id:Option<String>,
-  multiple:bool,
-  size:Option<String>,
-  options:Vec<String>,
-  validation:Option<String>,
-  step:Option<i32>,
-  _id: Option<String>
+  pub _id: Option<String>,
+  pub form_id:Option<String>,
+  pub multiple:bool,
+  pub size:Option<String>,
+  pub options:Vec<String>,
+  pub validation:Option<String>,
+  pub step:Option<i32>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct SelectReceive{
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
-  form_id:Option<String>,
-  multiple:bool,
-  size:Option<String>,
-  options:Vec<OptionSelect>,
-  validation:Option<String>,
-  step:Option<i32>,
-  _id: Option<String>
-}
-
-impl SelectReceive {
-    // SETTERS
-    pub fn set_id(&mut self,id:String)-> &mut Self{
-      self._id = Some(id);
-      self
-    }
-    // GETTERS
-    pub fn get_form_id(&self) -> &Option<String>{
-      &self.form_id
-    }
+  pub _id: Option<String>,
+  pub form_id:Option<String>,
+  pub multiple:bool,
+  pub size:Option<String>,
+  pub options:Vec<OptionSelect>,
+  pub validation:Option<String>,
+  pub step:Option<i32>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>,
 }
 
 
@@ -58,47 +46,6 @@ impl Select {
       form_id:None
     }
   }
-
-
-  // Setters
-
-  pub fn set_multiple(&mut self,multiple:&bool)-> &mut Self{
-    self.multiple = *multiple;
-    self
-  }
-
-  pub fn set_size(&mut self,size:&str) -> &mut Self{
-    self.size = Some(size.to_string());
-    self
-  }
-
-  pub fn set_form_id(&mut self,id:&str) -> &mut Self{
-    self.form_id = Some(id.to_string());
-    self
-  }
-
-  pub fn set_step(&mut self,step:&i32) -> &mut Self{
-    self.step = Some(*step);
-    self
-  }
-
-  pub fn build(self) -> Self{self}
-
-  pub fn add_option(&mut self, id:&str) -> &mut Self{
-    self.options.push(id.to_string());
-    self
-  }
-
-  // Getters
-  pub fn get_id(&self) -> &Option<String>{
-    &self._id
-  }
-
-
-  pub fn get_options(&self)->&Vec<String>{
-    &self.options
-  }
-
 }
 
 

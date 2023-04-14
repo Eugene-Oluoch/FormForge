@@ -11,10 +11,7 @@ pub async fn add_form(data:Json<Form>,client:&State<StateCustom>){
   let mut form = data.0;
 
   // GENERATE A RANDOM ID FOR FORM
-  let _ = &form
-    .set_id(Uuid::new_v4().to_string())
-    .build();
-
+  let _ = form._id=Some(Uuid::new_v4().to_string());
 
   // ID OF CREATED FORM
   let option_id = insert_doc(&client.client, "crabs_test", "forms", &form).await.unwrap().inserted_id.to_string();
