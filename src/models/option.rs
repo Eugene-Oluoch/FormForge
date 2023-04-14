@@ -10,9 +10,9 @@ pub struct OptionSelect{
   pub selected:Option<bool>,
   pub value:Option<String>,
   pub select_id:Option<String>,
-  archive:Option<bool>,
-  updated_at: Option<i64>,
-  created_at: Option<i64>
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>
 }
 
 
@@ -30,47 +30,6 @@ impl OptionSelect {
     }
   }
 
-  // Setters
-  pub fn set_name(&mut self,value:Option<String>) -> &mut Self{
-    if let Some(value) = value{
-      self.name = Some(value.to_string());
-    }
-    self
-  }
-
-  pub fn set_value(&mut self,value:Option<String>) -> &mut Self{
-    if let Some(value) = value{
-      self.value = Some(value.to_string());
-    }
-    self
-  }
-
-  pub fn set_selected(&mut self,value:Option<bool>) -> &mut Self{
-    if let Some(value) = value{
-      self.selected = Some(value);
-    }
-    self
-  }
-
-  pub fn set_select_id(&mut self,id:Option<String>)-> &mut Self{
-    if let Some(id) = id{
-      self.select_id = Some(id);
-    }
-    self
-  }
-  pub fn set_id(&mut self,id:Option<String>) -> &mut Self{
-    if let Some(id) = id{
-      self._id = Some(id);
-    }else{
-      self._id = None
-    }
-    self
-  }
-
-  pub fn build(&self){
-
-  }
-
   pub fn to_document(&self) -> Document {
     doc! {
         "selected": self.selected,
@@ -79,18 +38,6 @@ impl OptionSelect {
         "_id": self._id.clone().unwrap_or_else(|| String::new()),
     }
 }
-
-
-
-
-  // Getters
-  pub fn get_id(&self) -> &Option<String>{
-    &self._id
-  }
-
-  pub fn get_select_id(&self) -> &Option<String>{
-    &self.select_id
-  }
 
 }
 

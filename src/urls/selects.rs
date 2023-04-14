@@ -29,10 +29,10 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
   let mut select = data.0;
   
   // GENERATE AN ID FOR THE SELECT FIELD
-  let _ = & mut select.set_id(Uuid::new_v4().to_string());
+  let _ = select._id = Some(Uuid::new_v4().to_string());
   
   // VALIDATION FOR FORM ID
-  if let Some(form_id) = &select.get_form_id(){
+  if let Some(form_id) = &select.form_id{
     let form = get_by_id::<Form>(&client.client, "crabs_test", "forms", form_id.as_str()).await;
     if let Ok(result) = form{
       if result == None {
@@ -44,7 +44,7 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
 
   let results = insert_doc(&client.client, "crabs_test", "selects", &select).await.expect("Skip");
 
-  if let Some(form_id) = &select.get_form_id(){
+  if let Some(form_id) = &select.form_id{
     let document = doc! { "$push": { "selects": trim_quotes(&results.inserted_id.to_string()) } };
     update_push::<Form>(&client.client, "crabs_test", "forms", document, form_id).await;
   }

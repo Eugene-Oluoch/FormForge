@@ -5,18 +5,18 @@ use mongodb::bson::{Bson, Document};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
-  _id: Option<String>,
-  form_id:Option<String>,
-  type_identifier:types::Types,
-  disabled:bool,
-  placeholder:Option<String>,
-  label:Option<String>,
-  name:String,
+  pub _id: Option<String>,
+  pub form_id:Option<String>,
+  pub type_identifier:types::Types,
+  pub disabled:bool,
+  pub placeholder:Option<String>,
+  pub label:Option<String>,
+  pub name:String,
   pub validation:Option<String>,
-  step:Option<i32>,
-  archive:Option<bool>,
-  updated_at: Option<i64>,
-  created_at: Option<i64>,
+  pub step:Option<i32>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>,
 }
 
 
@@ -37,49 +37,6 @@ impl Input  {
       _id:None
     }
   }
-
-  // Setters
-  pub fn set_type(&mut self,option:&str) -> &mut Self{
-    self.type_identifier = Types::map(option).unwrap();
-    // self.validation = Validation::map(option).unwrap();
-    self
-  }
-
-  pub fn set_step(&mut self,value:i32) -> &mut Self{
-    self.step = Some(value);
-    self
-  }
-
-  pub fn set_name(&mut self,value:String) -> & mut Self{
-    self.name = value;
-    self
-  }
-
-  pub fn set_label(& mut self, value:String) -> & mut Self{
-    self.label = Some(value);
-    self
-  }
-
-  pub fn set_placeholder(&mut self,value:String) -> &mut Self{
-    self.placeholder = Some(value);
-    self
-  }
-
-  pub fn set_disabled(&mut self,value:bool) -> &mut Self{
-    self.disabled = value;
-    self
-  }
-
-
-
-  pub fn build(&self){}
-
-  // Getters
-  pub fn get_id(&self) -> &Option<String>{
-    &self._id
-  }
-
-
 
 }
 
