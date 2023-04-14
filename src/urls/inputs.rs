@@ -15,6 +15,13 @@ pub async fn get_input<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<In
   }
 }
 
+/*
+CASES TO COVER
+--------------
+Form-ID -> If supplied confirm if it exist , and if it exists, update form by attaching the newly added option
+
+*/
+
 #[post("/add", data="<data>")]
 pub async fn add_input(data:Json<Input>,client:&State<StateCustom>){
   let mut input = data.0;
