@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use mongodb::{bson::{Document, doc, Bson}};
-
+use crate::models::traits::ResetDefaults;
+use uuid::Uuid;
 
 // ADD ARCHIVE TO HANDLE DELETE -> SOFT DELETE
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
@@ -39,6 +40,15 @@ impl OptionSelect {
     }
 }
 
+}
+
+impl ResetDefaults for OptionSelect{
+  fn reset(&mut self) {
+      self.updated_at = None;
+      self.created_at = None;
+      self.archive = None;
+      self._id = Some(Uuid::new_v4().to_string())
+  }
 }
 
 impl From<OptionSelect> for Bson {

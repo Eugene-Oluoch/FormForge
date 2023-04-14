@@ -1,6 +1,9 @@
 use mongodb::bson::{Bson, Document};
 use serde::{Serialize, Deserialize};
 use crate::OptionSelect;
+use crate::models::traits::ResetDefaults;
+use uuid::Uuid;
+
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
@@ -28,6 +31,15 @@ pub struct SelectReceive{
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
   pub created_at: Option<i64>,
+}
+
+impl ResetDefaults for SelectReceive{
+  fn reset(&mut self) {
+    self.updated_at = None;
+    self.created_at = None;
+    self.archive = None;
+    self._id = Some(Uuid::new_v4().to_string())
+  }
 }
 
 

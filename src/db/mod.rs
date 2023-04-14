@@ -1,4 +1,4 @@
-use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult}, bson::{doc, Bson, Document}, error::Error};
+use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult, UpdateResult}, bson::{doc, Bson, Document}, error::Error};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
 use dotenv::dotenv;
@@ -58,6 +58,11 @@ pub async fn get_all<T>(client:&Client,db_name:&str,collection:&str,pipeline:Vec
     Ok(cursor) => cursor.deserialize_current(),
     Err(error) => Err(error)
   }
+}
+
+pub async fn update_one<T>(client:&Client,db_name:&str, collection:&str,id:&str,doc:Document) -> Result<UpdateResult,Error>{
+  let col:Collection<T> = create_collection(client, db_name, collection).await;
+  col.update_one(doc! { "_id":id}, doc, None).await
 }
 
 pub async fn update_many<T>(client:&Client,db_name:&str,collection:&str,match_:Document,action:Document,id:&str){
