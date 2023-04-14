@@ -1,5 +1,4 @@
-use crate::types::{self};
-use crate::types::{Types,validation::{Validate}};
+use crate::validation::{Validate};
 use crate::models::traits::ResetDefaults;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson, Document};
@@ -10,7 +9,7 @@ use uuid::Uuid;
 pub struct Input{
   pub _id: Option<String>,
   pub form_id:Option<String>,
-  pub type_identifier:Types,
+  pub type_identifier:String,
   pub disabled:bool,
   pub placeholder:Option<String>,
   pub label:Option<String>,
@@ -31,7 +30,7 @@ impl Input  {
       updated_at: None,
       archive:None,
       form_id:None,
-      type_identifier:types::Types::Text,
+      type_identifier:"text".to_string(),
       placeholder:None,
       label:None,
       disabled: false,
@@ -39,6 +38,28 @@ impl Input  {
       validation:Some(Validate::new()),
       step:None,
       _id:None
+    }
+  }
+  pub fn map_type(&mut self){
+    let types = vec![
+      "color",
+      "date",
+      "email",
+      "number",
+      "password",
+      "range",
+      "tel",
+      "text",
+      "time",
+      "url",
+      "week",
+      "file",
+      "month",
+      "datetime-local"
+    ];
+
+    if types.contains(&self.type_identifier.to_lowercase().as_str()) == false{
+      self.type_identifier = "text".to_string();
     }
   }
 

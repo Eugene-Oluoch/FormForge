@@ -44,14 +44,10 @@ pub async fn add_select(data:Json<SelectReceive>,client:&State<StateCustom>) -> 
   let results = insert_doc(&client.client, "crabs_test", "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
 
   // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
-  // TODO RC SMART-POINTER 
   for option in &mut select.options{
     option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
     let _ = add_option_view(option, &client.client).await;
   }
-
-
-
 
 
   if let Some(form_id) = &select.form_id{
