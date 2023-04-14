@@ -42,6 +42,23 @@ impl ResetDefaults for SelectReceive{
   }
 }
 
+impl SelectReceive{
+  pub fn convert(&self) -> Select {
+    Select { 
+      _id: self._id.clone(), 
+      form_id: self.form_id.clone(), 
+      multiple: self.multiple.clone(), 
+      size: self.size.clone(), 
+      options: Vec::new(), 
+      validation: self.validation.clone(), 
+      step: self.step.clone(), 
+      archive: self.archive.clone(), 
+      updated_at: self.updated_at.clone(), 
+      created_at: self.created_at.clone() 
+    }
+  }
+}
+
 
 impl Select {
   pub fn new() -> Self{

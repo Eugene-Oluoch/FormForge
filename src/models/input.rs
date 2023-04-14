@@ -1,23 +1,27 @@
 use crate::types::{self};
-use types::Types;
+use crate::types::{Types,validation::{Validate}};
+use crate::models::traits::ResetDefaults;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson, Document};
+use uuid::Uuid;
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
   pub _id: Option<String>,
   pub form_id:Option<String>,
-  pub type_identifier:types::Types,
+  pub type_identifier:Types,
   pub disabled:bool,
   pub placeholder:Option<String>,
   pub label:Option<String>,
   pub name:String,
-  pub validation:Option<String>,
+  pub validation:Option<Validate>,
   pub step:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
   pub created_at: Option<i64>,
 }
+
 
 
 impl Input  {
@@ -32,12 +36,21 @@ impl Input  {
       label:None,
       disabled: false,
       name:String::from("name"),
-      validation:Some(String::from("To hold for now")),
+      validation:Some(Validate::new()),
       step:None,
       _id:None
     }
   }
 
+}
+
+impl ResetDefaults for Input{
+  fn reset(&mut self) {
+      self.archive = None;
+      self.created_at = None;
+      self.updated_at = None;
+      self._id = Some(Uuid::new_v4().to_string());
+  }
 }
 
 // This ain't Complete

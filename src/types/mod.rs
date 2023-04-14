@@ -2,6 +2,14 @@ pub mod validation;
 use serde::{Serialize, Deserialize};
 
 // NOTE THIS IMPLEMENTATION ISN'T THE FINAL ONE -> TESTING PURPOSES
+
+/* 
+
+CHECKBOX AND RADIO EXCLUDED TO BE HANDLED DIFFERENTLY
+
+*/
+
+
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub enum Types{
   Color,
@@ -15,7 +23,6 @@ pub enum Types{
   Range,
   Password,
   Number,
-  Checkbox,
   DatetimeLocal,
   File,
   Month
@@ -25,7 +32,6 @@ impl Types {
   pub fn map(name:&str) -> Option<Types>{
     match name{
       "color" => Some(Types::Color),
-      "checkbox" => Some(Types::Checkbox),
       "date" => Some(Types::Date),
       "email" => Some(Types::Email),
       "number" => Some(Types::Number),
