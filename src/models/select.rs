@@ -4,16 +4,16 @@ use crate::OptionSelect;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
+  _id: Option<String>,
   form_id:Option<String>,
   multiple:bool,
   size:Option<String>,
   options:Vec<String>,
   validation:Option<String>,
   step:Option<i32>,
-  _id: Option<String>
+  archive:Option<bool>,
+  updated_at: Option<i64>,
+  created_at: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]

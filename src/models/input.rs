@@ -5,19 +5,18 @@ use mongodb::bson::{Bson, Document};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
+  _id: Option<String>,
   form_id:Option<String>,
   type_identifier:types::Types,
   disabled:bool,
   placeholder:Option<String>,
   label:Option<String>,
-  required:bool,
   name:String,
   pub validation:Option<String>,
   step:Option<i32>,
-  _id: Option<String>
+  archive:Option<bool>,
+  updated_at: Option<i64>,
+  created_at: Option<i64>,
 }
 
 
@@ -31,7 +30,6 @@ impl Input  {
       type_identifier:types::Types::Text,
       placeholder:None,
       label:None,
-      required:false,
       disabled: false,
       name:String::from("name"),
       validation:Some(String::from("To hold for now")),
@@ -73,10 +71,6 @@ impl Input  {
   }
 
 
-  pub fn set_required(&mut self, value:bool) -> &mut Self{
-    self.required = value;
-    self
-  }
 
   pub fn build(&self){}
 
@@ -93,7 +87,6 @@ impl Input  {
 impl From<Input> for Bson {
   fn from(option: Input) -> Self {
       let mut doc = Document::new();
-      doc.insert("required", option.required);
       doc.insert("disabled", option.disabled);
       doc.insert("step", option.step);
 

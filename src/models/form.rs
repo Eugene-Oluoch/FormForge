@@ -4,14 +4,14 @@ use mongodb::bson::{Bson,Document};
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
+  _id: Option<String>,
+  name:String,
   inputs: Vec<String>,
   selects: Vec<String>,
   steps:Option<i32>,
-  name:String,
-  _id: Option<String>
+  archive:Option<bool>,
+  updated_at: Option<i64>,
+  created_at: Option<i64>
 }
 
 

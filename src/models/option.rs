@@ -5,14 +5,14 @@ use mongodb::{bson::{Document, doc, Bson}};
 // ADD ARCHIVE TO HANDLE DELETE -> SOFT DELETE
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct OptionSelect{
-  created_at: Option<i64>,
-  updated_at: Option<i64>,
-  archive:Option<bool>,
-  pub select_id:Option<String>,
-  pub selected:Option<bool>,
+  pub _id: Option<String>,
   pub name:Option<String>,
+  pub selected:Option<bool>,
   pub value:Option<String>,
-  pub _id: Option<String>
+  pub select_id:Option<String>,
+  archive:Option<bool>,
+  updated_at: Option<i64>,
+  created_at: Option<i64>
 }
 
 
