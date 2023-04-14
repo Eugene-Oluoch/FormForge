@@ -3,17 +3,15 @@ use crate::utils::{ReturnError, StateCustom,ReturnId,ReturnMessage};
 use crate::db::{get_by_id,insert_doc, update_push,delete_by_id,get_all,update_many,update_one};
 use crate::OptionSelect;
 use crate::Select;
-use mongodb::Collection;
 use mongodb::bson::doc;
 use rocket::State;
-use rocket::futures::StreamExt;
 use rocket::serde::json::Json;
-use uuid::Uuid;
+use crate::views::{
+  options::{add_option_view}
+};
 
 
-// UPDATE ROUTE WILL BE LAST SO AS TO COVER ALL CASES
-
-// CORRECT STATUS CODE HAVEN'T BEEN MAPPED YET
+// TODO MAP CORRECT STATUS CODES
 #[get("/<id>")]
 pub async fn get_option_by_id<'a>(id:&'a str,client:&'a State<StateCustom>) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
   let option_data = get_by_id::<OptionSelect>(&client.client, "crabs_test", "options", id).await.expect("Failed on db level");
@@ -24,35 +22,16 @@ pub async fn get_option_by_id<'a>(id:&'a str,client:&'a State<StateCustom>) -> R
   }
 }
 
-/* 
-THINKING OF ADDING THE SELECT ID FROM USER TO AN ARRAY -
-SO THAT ONE OPTION FIELD CAN BE SHARED AMONG MANY OPTIONS
-*/
 #[post("/add",data="<data>")]
 pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> Result<Json<ReturnId>,Json<ReturnError>>{
   let mut option = data.0;
 
-  // RESET AND ASSIGN ID
-  let _ = &mut option.reset();
-
-  // VALIDATE SELECT ID 
-  if let Some(select_id) = &option.select_id{
-    let select_requested = get_by_id::<Select>(&client.client,"crabs_test","selects",select_id.as_str()).await.expect("Failed on db level");
-    if select_requested == None{
-      return Err(Json(ReturnError::new("Select with the given id doesn't exist")))
-    }
+  let results = add_option_view(&mut option, &client.client).await;
+  if let Ok(result) = results{
+    Ok(Json(ReturnId::new(result.as_str())))
+  }else{
+    Err(Json(ReturnError::new("Failed")))
   }
-
-  // ID OF CREATED OPTION
-  let option_id = insert_doc(&client.client, "crabs_test", "options", &option).await.unwrap().inserted_id.to_string();
-
-  // UPDATE OPTIONS IN THE SELECT
-  if let Some(select_id) = &option.select_id{
-    let document = doc! { "$push": { "options": &option_id } };
-    update_push::<Select>(&client.client, "crabs_test", "selects", document, select_id).await;
-  }
-
-  Ok(Json(ReturnId::new(option_id.trim_matches('"'))))
 }
 
 
