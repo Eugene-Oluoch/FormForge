@@ -1,5 +1,6 @@
+use crate::models::traits::ResetDefaults;
 use crate::utils::{ReturnError, StateCustom,ReturnId,ReturnMessage};
-use crate::db::{get_by_id,insert_doc, update_push,delete_by_id,get_all,update_many};
+use crate::db::{get_by_id,insert_doc, update_push,delete_by_id,get_all,update_many,update_one};
 use crate::OptionSelect;
 use crate::Select;
 use mongodb::Collection;
@@ -31,9 +32,8 @@ SO THAT ONE OPTION FIELD CAN BE SHARED AMONG MANY OPTIONS
 pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> Result<Json<ReturnId>,Json<ReturnError>>{
   let mut option = data.0;
 
-  // GENERATE A RANDOM ID FOR OPTION
-  let _ = option._id=Some(Uuid::new_v4().to_string());
-
+  // RESET AND ASSIGN ID
+  let _ = &mut option.reset();
 
   // VALIDATE SELECT ID 
   if let Some(select_id) = &option.select_id{
@@ -58,19 +58,20 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
 
 #[delete("/<id>")]
 pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
-  // DELETE OPTION FROM ALL SELECTS
-  let match_selects = doc! {"options":id};
-  let delete =doc! {"$pullAll":{"options":[id]}};
-  update_many::<Select>(&client.client, "crabs_test", "selects", match_selects, delete, id).await;
 
-  // OPTION DELETE
-  let delete_results = delete_by_id::<OptionSelect>(&client.client, "crabs_test", "options", id).await;
-  if let Ok(results) = delete_results{
-    match results.deleted_count {
-      0 => Err(Json(ReturnError::new("Option with the given id doesn't exist 🙁"))),
-      _=> Ok(Json(ReturnMessage::new("Deleted Successfully 🙂")))
-    }
+  let update = doc! { "$set": {"archive":true} };
+  let results = update_one::<OptionSelect>(&client.client, "crabs_test", "options", id, update).await;
+  if let Ok(_) = &results{
+    Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
-    Err(Json(ReturnError::new("Failed to Delete")))
+    Err(Json(ReturnError::new("Failed to delete 🙁")))
   }
+
 }
+
+
+
+// DELETE OPTION FROM ALL SELECTS
+// let match_selects = doc! {"options":id};
+// let delete =doc! {"$pullAll":{"options":[id]}};
+// update_many::<Select>(&client.client, "crabs_test", "selects", match_selects, delete, id).await;
