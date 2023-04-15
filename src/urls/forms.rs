@@ -10,7 +10,6 @@ use crate::models::traits::ResetDefaults;
 use crate::utils::{StateCustom, ReturnMessage, ReturnId,trim_quotes};
 use crate::repository::{map};
 
-// Works but not for forms which have no inputs and selects -> TO BE FIXED
 #[get("/<id>")]
 pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceive>,Json<ReturnMessage<'a>>>{
   let results = get_all::<Form>(&client.client, "crabs_test", "forms", map("form",id.as_str())).await;

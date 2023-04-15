@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub struct Select{
   pub _id: Option<String>,
   pub form_id:Option<String>,
-  pub multiple:bool,
+  pub multiple:Option<bool>,
   pub size:Option<String>,
   pub options:Vec<String>,
   pub validation:Option<String>,
@@ -23,7 +23,7 @@ pub struct Select{
 pub struct SelectReceive{
   pub _id: Option<String>,
   pub form_id:Option<String>,
-  pub multiple:bool,
+  pub multiple:Option<bool>,
   pub size:Option<String>,
   pub options:Vec<OptionSelect>,
   pub validation:Option<String>,
@@ -66,7 +66,7 @@ impl Select {
       created_at: None,
       updated_at: None,
       archive:None,
-      multiple: false,
+      multiple: None,
       size:None,
       options: vec![],
       validation:None,
