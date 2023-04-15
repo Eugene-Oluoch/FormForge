@@ -33,16 +33,35 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
     }
     },
     doc! {
-      "$unwind":"$selects"
-    },
-    doc! {
-      "$lookup": {
-        "from": "options",
-        "localField": "selects.options",
-        "foreignField": "_id",
-        "as": "selects.options"
+      "$unwind": {
+          "path": "$selects",
+          "preserveNullAndEmptyArrays": true
       }
-    }
+  },
+  doc! {
+      "$lookup": {
+          "from": "options",
+          "localField": "selects.options",
+          "foreignField": "_id",
+          "as": "selects.options"
+      }
+  },
+  doc! {
+      "$group": {
+          "_id": "$_id",
+          "name": { "$first": "$name" },
+          "steps": { "$first": "$steps" },
+          "archive": { "$first": "$archive" },
+          "updated_at": { "$first": "$updated_at" },
+          "created_at": { "$first": "$created_at" },
+          "inputs": {
+              "$first": "$inputs"
+          },
+          "selects": {
+              "$push": "$selects"
+          }
+      }
+  }
   ];
 
   // SELECT PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP

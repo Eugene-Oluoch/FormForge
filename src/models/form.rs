@@ -1,6 +1,11 @@
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson,Document};
-
+use crate::models::{
+  traits::{ResetDefaults},
+  input::{Input},
+  select::{SelectReceive}
+};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
@@ -13,7 +18,17 @@ pub struct Form {
   pub updated_at: Option<i64>,
   pub created_at: Option<i64>
 }
-
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FormReceive {
+  pub _id: Option<String>,
+  pub name:String,
+  pub inputs: Vec<Input>,
+  pub selects: Vec<SelectReceive>,
+  pub steps:Option<i32>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>
+}
 
 impl Form{
   pub fn new() -> Self{
@@ -29,6 +44,15 @@ impl Form{
     }
   }
 
+}
+
+impl ResetDefaults for Form{
+  fn reset(&mut self) {
+    self.updated_at = None;
+    self.created_at = None;
+    self.archive = None;
+    self._id = Some(Uuid::new_v4().to_string())
+  }
 }
 
 
