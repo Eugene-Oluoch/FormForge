@@ -41,6 +41,6 @@ async fn main() {
 }
 
 #[get("/")]
-async fn welcome() -> String{
-  String::from("Welcome to FormForge 🙂")
+async fn welcome() -> &'static str{
+  "Welcome to FormForge 🙂"
 }
