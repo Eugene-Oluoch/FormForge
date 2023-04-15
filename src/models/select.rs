@@ -37,7 +37,7 @@ impl ResetDefaults for SelectReceive{
   fn reset(&mut self) {
     self.updated_at = None;
     self.created_at = None;
-    self.archive = None;
+    self.archive = Some(false);
     self._id = Some(Uuid::new_v4().to_string())
   }
 }
