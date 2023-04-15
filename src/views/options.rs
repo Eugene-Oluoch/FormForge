@@ -1,17 +1,35 @@
-use mongodb::{Client, bson::doc};
+use mongodb::{Client, bson::doc, error::Error, results::UpdateResult};
+use rocket::serde::json::Json;
 
-use crate::models::{
+use crate::{
+  models::{
   option::{OptionSelect},
   select::{Select}, 
   traits::{ResetDefaults}
-};
-use crate::db::{
+}, 
+utils::{
+  ReturnId, 
+  ReturnError,
+  ReturnMessage
+},
+db::{
   get_by_id,
   insert_doc,
-  update_push
+  update_push,
+  update_one
+}
 };
 
-pub async fn add_option_view(option:&mut OptionSelect,client:&Client) -> Result<String,String>{
+pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
+  let option_data = get_by_id::<OptionSelect>(&client,"crabs_test","options",id).await.expect("failed");
+  if let Some(result) = option_data{
+    Ok(Json(result))
+  }else{
+    Err(Json(ReturnError::new("Option with the provided id doesn't exists.")))
+  }
+}
+
+pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Result<String,String>{
   // RESET AND ASSIGN ID
   let _ = option.reset();
 
@@ -33,5 +51,27 @@ pub async fn add_option_view(option:&mut OptionSelect,client:&Client) -> Result<
   }
 
   Ok(option_id.trim_matches('"').to_string())
+
+}
+
+pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnError>> {
+  let mut option = data.0;
+  let results = add_option_helper(&mut option, client).await;
+  if let Ok(result) = results{
+    Ok(Json(ReturnId::new(result.as_str())))
+  }else{
+    Err(Json(ReturnError::new("Failed")))
+  }
+}
+
+
+pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  let update_query = doc! {"$set":{"archive":true}};
+  let results = update_one::<OptionSelect>(client, "crabs_test", "options", id, update_query).await;
+  if let Ok(_) = &results{
+    Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
+  }else {
+    Err(Json(ReturnError::new("Failed to delete 🙁")))
+  }
 
 }
