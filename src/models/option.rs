@@ -51,20 +51,20 @@ impl ResetDefaults for OptionSelect{
   }
 }
 
-// impl From<OptionSelect> for Bson {
-//   fn from(option: OptionSelect) -> Self {
-//       let mut doc = Document::new();
-//       doc.insert("selected", option.selected);
-//       if let Some(name) = option.name {
-//           doc.insert("name", name);
-//       }
-//       if let Some(value) = option.value {
-//           doc.insert("value", value);
-//       }
-//       if let Some(id) = option._id {
-//           doc.insert("_id", id);
-//       }
-//       Bson::Document(doc)
-//   }
+impl From<OptionSelect> for Bson {
+  fn from(option: OptionSelect) -> Self {
+      let mut doc = Document::new();
+      doc.insert("selected", option.selected);
+      if let Some(name) = option.name {
+          doc.insert("name", name);
+      }
+      if let Some(value) = option.value {
+          doc.insert("value", value);
+      }
+      if let Some(id) = option._id {
+          doc.insert("_id", id);
+      }
+      Bson::Document(doc)
+  }
 
-// }
+}
