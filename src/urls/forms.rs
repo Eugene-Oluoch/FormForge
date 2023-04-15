@@ -1,11 +1,8 @@
-use std::result;
-
 use mongodb::bson::{self, from_bson};
 use rocket::State;
 use rocket::serde::json::Json;
-use uuid::Uuid;
 use crate::models::form::{Form, FormReceive};
-use crate::db::{insert_doc, get_all, get_by_id};
+use crate::db::{insert_doc, get_all};
 use crate::models::traits::ResetDefaults;
 use crate::utils::{StateCustom, ReturnMessage, ReturnId,trim_quotes};
 use crate::repository::{map};
@@ -14,7 +11,14 @@ use crate::repository::{map};
 pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceive>,Json<ReturnMessage<'a>>>{
   let results = get_all::<Form>(&client.client, "crabs_test", "forms", map("form",id.as_str())).await;
   if let Ok(result) = results{
-    Ok(Json(from_bson(bson::Bson::Document(result)).expect("Failed here")))
+    let mut final_result:FormReceive = from_bson(bson::Bson::Document(result)).expect("failed");
+
+    // RESET SELECTS IF MONGO RETURN A NONE RECORD
+    if final_result.selects.len() == 1 && final_result.selects[0]._id == None{
+      final_result.selects = Vec::new();
+    }
+
+    Ok(Json(final_result))
   } else {
     Err(Json(ReturnMessage::new("Failed to get the form 🙁")))
   }
