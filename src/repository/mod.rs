@@ -39,6 +39,11 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
       }
   },
   doc! {
+      "$match": {
+          "selects": { "$ne": [] }
+      }
+  },
+  doc! {
       "$lookup": {
           "from": "options",
           "localField": "selects.options",
@@ -62,8 +67,7 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
           }
       }
   }
-  ];
-
+];
   // SELECT PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   let select_pipeline = vec![
     doc! {
