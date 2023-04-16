@@ -15,7 +15,6 @@ utils::{
 db::{
   get_by_id,
   insert_doc,
-  update_push,
   update_one
 }
 };
@@ -47,7 +46,7 @@ pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Resul
   // UPDATE OPTIONS IN THE SELECT
   if let Some(select_id) = &option.select_id{
     let document = doc! { "$push": { "options": &option_id.trim_matches('"').to_string() } };
-    update_push::<Select>(client,"selects", document, select_id).await;
+    update_one::<Select>(client,"selects", document, select_id).await;
   }
 
   Ok(option_id.trim_matches('"').to_string())
@@ -67,7 +66,7 @@ pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<J
 
 pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   let update_query = doc! {"$set":{"archive":true}};
-  let results = update_one::<OptionSelect>(client, "options", id, update_query).await;
+  let results = update_one::<OptionSelect>(client, "options",update_query,id).await;
   if let Ok(_) = &results{
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
