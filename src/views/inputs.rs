@@ -12,7 +12,8 @@ use crate::{
   },
   utils::{
     ReturnError,
-    ReturnId
+    ReturnId,
+    trim_quotes
   }
 };
 
@@ -27,18 +28,15 @@ pub async fn get_input_view<'a>(id:&str,client:&Client) -> Result<Json<Input>,Js
   }
 }
 
-
-// TRIM RESPONSE ID
-pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnError>> {
-  let mut input = data.0;
-  let _ = &mut input.reset();
-  let _ = &mut input.map_type();
+pub async fn add_input_helper<'a>(input:&'a mut Input,client:&'a Client) -> Result<String,&'a str> {
+  let _ = input.reset();
+  let _ = input.map_type();
 
   // FORM ID 
   if let Some(form) = &input.form_id{
     let form_result = get_by_id::<Form>(client,"forms", form).await.expect("Failed");
     if form_result == None {
-      return Err(Json(ReturnError::new("Form with the provided id doesn't exists 🙁")))
+      return Err("Form with the provided id doesn't exists 🙁")
     }
   }
   let input_id = insert_doc(client,"inputs", &input).await.unwrap().inserted_id.to_string();
@@ -49,5 +47,17 @@ pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<Retu
     update_push::<Form>(client,"forms", document, form).await;
   }
 
-  Ok(Json(ReturnId::new(&input_id)))
+  Ok(trim_quotes(&input_id))
+
+}
+
+pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnError>> {
+  let mut input = data.0;
+  let results = add_input_helper(&mut input, client).await;
+  if let Ok(id) = results{
+    Ok(Json(ReturnId::new(&id)))
+  }else{
+    Err(Json(ReturnError::new("Form with the provided id doesn't exists 🙁")))
+  }
+  
 }

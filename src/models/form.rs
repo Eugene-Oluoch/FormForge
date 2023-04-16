@@ -7,6 +7,7 @@ use crate::models::{
 };
 use uuid::Uuid;
 
+
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
   pub _id: Option<String>,
@@ -36,7 +37,7 @@ impl Form{
         created_at: None,
         updated_at: None,
         archive:None,
-        inputs: vec![],
+        inputs:vec![],
         steps: None,
         name: String::from("default"),
         selects: vec![],
@@ -44,6 +45,20 @@ impl Form{
     }
   }
 
+}
+
+impl FormReceive {
+  pub fn convert(&self,inputs:Vec<String>,selects:Vec<String>) -> Form{
+    Form { 
+      _id: None, 
+      name: self.name.clone(), 
+      inputs, 
+      selects, 
+      steps: self.steps, 
+      archive: None, 
+      updated_at: None, 
+      created_at: None }
+  }
 }
 
 impl ResetDefaults for Form{

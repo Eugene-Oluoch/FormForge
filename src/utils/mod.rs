@@ -6,6 +6,7 @@ pub fn trim_quotes(string:&String) -> String{
   string.trim_matches('"').to_string()
 }
 
+#[derive(Clone)]
 pub struct StateCustom{
   pub client:Client
 }
