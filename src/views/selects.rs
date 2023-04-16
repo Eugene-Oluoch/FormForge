@@ -27,38 +27,46 @@ pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectRece
   }
 }
 
+pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Client) -> Result<String,&'a str> {
+    // RESET AND SET ID
+    let _ = &mut select.reset();
+  
+    // VALIDATION FOR FORM ID
+    if let Some(form_id) = &select.form_id{
+      let form = get_by_id::<Form>(client,"forms", form_id.as_str()).await;
+      if let Ok(result) = form{
+        if result == None {
+          return Err("Form with the provided id doesn't exist 🙂")
+        }
+      }
+    }
+  
+    let results = insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
+  
+    // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
+    for option in &mut select.options{
+      option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
+      let _ = add_option_helper(option, client).await;
+    }
+  
+  
+    if let Some(form_id) = &select.form_id{
+      let document = doc! { "$push": { "selects": trim_quotes(&results) } };
+      update_push::<Form>(client, "forms", document, form_id).await;
+    }
+  
+    Ok(trim_quotes(&results))
+}
 
 pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<Json<ReturnId>, Json<ReturnError>>{
   let mut select = data.0;
   
-  // RESET AND SET ID
-  let _ = &mut select.reset();
-  
-  // VALIDATION FOR FORM ID
-  if let Some(form_id) = &select.form_id{
-    let form = get_by_id::<Form>(client,"forms", form_id.as_str()).await;
-    if let Ok(result) = form{
-      if result == None {
-        return Err(Json(ReturnError::new("Form with the provided id doesn't exist 🙂")))
-      }
-    }
+  let results = add_select_helper(&mut select, client).await;
+  if let Ok(id) = results{
+    Ok(Json(ReturnId::new(&id)))
+  }else{
+    Err(Json(ReturnError::new("Failed")))
   }
-
-  let results = insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
-
-  // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
-  for option in &mut select.options{
-    option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
-    let _ = add_option_helper(option, client).await;
-  }
-
-
-  if let Some(form_id) = &select.form_id{
-    let document = doc! { "$push": { "selects": trim_quotes(&results) } };
-    update_push::<Form>(client, "forms", document, form_id).await;
-  }
-
-  Ok(Json(ReturnId::new(trim_quotes(&results).as_str())))
 }
 
 
