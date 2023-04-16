@@ -52,40 +52,20 @@ pub async fn get_all<T>(client:&Client,collection:&str,pipeline:Vec<Document>) -
   }
 }
 
-pub async fn update_one<T>(client:&Client, collection:&str,id:&str,doc:Document) -> Result<UpdateResult,Error>{
-  let col:Collection<T> = create_collection(client,collection).await;
-  col.update_one(doc! { "_id":id}, doc, None).await
-}
-
 pub async fn update_many<T>(client:&Client,collection:&str,match_:Document,action:Document,id:&str){
   let col:Collection<T> = create_collection(client,collection).await;
   println!("{:?}",col.update_many(match_,action,None).await.expect("testing"));
 }
 
-// UPDATES WILL BE MERGED TO ONE -> NOTE
-pub async fn update_doc<T>(client:&Client,collection:&str,option:T, id:&str)
-where Bson: From<T>
-{
+pub async fn update_one<T>(client:&Client, collection:&str,doc:Document,id:&str) -> Result<UpdateResult,Error>{
   let col:Collection<T> = create_collection(client,collection).await;
-  let update = doc! {"$set": option};
-  update_query(&col, update, id).await;
-}
-
-// METHOD TO PUSH NEW ITEM TO EXISTING ARRAY
-pub async fn update_push<T>(client:&Client,collection:&str,document:Document,id:&str)
-where Bson: From<T>
-{
-  let col:Collection<T> = create_collection(client,collection).await;
-  update_query(&col, document, id).await;
-}
-
-// METHOD TO REMOVE ITEM FROM EXISTING
-pub async fn update_query<T>(col:&Collection<T>,update:Document,id:&str){
-  println!("{:?}",col
-  .update_one(doc! {"_id": id}, update, None).await.unwrap());
+  col.update_one(doc! { "_id":id}, doc, None).await
 }
 
 
+
+// UPDATE WHOLE DOC QUERY
+// let update = doc! {"$set": option};
 
 
 pub async fn delete_by_id<T>(client:&Client, collection:&str, id:&str) -> Result<DeleteResult,Error> {
