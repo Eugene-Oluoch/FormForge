@@ -20,7 +20,12 @@ use crate::views::{
 pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectReceive>,Json<ReturnError>>{
   let document = get_all::<Select>(client, "selects", map("select",id.as_str())).await;
   if let Ok(doc) = document{
-    Ok(Json(from_bson(bson::Bson::Document(doc)).expect("Failed here")))
+    let results:SelectReceive = from_bson(bson::Bson::Document(doc)).expect("Failed here");
+    if results.archive == Some(true){
+      Err(Json(ReturnError::new("Select with the given id doesn't exist 🙁")))
+    }else{
+      Ok(Json(results))
+    }
   } else {
     Err(Json(ReturnError::new("Select with the given id doesn't exist 🙁")))
   }

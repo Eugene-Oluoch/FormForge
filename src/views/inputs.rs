@@ -22,7 +22,11 @@ use crate::{
 pub async fn get_input_view<'a>(id:&str,client:&Client) -> Result<Json<Input>,Json<ReturnError<'a>>>{
   let input_data = get_by_id::<Input>(client, "inputs", id).await.expect("Failed");
   if let Some(result) = input_data{
-    Ok(Json(result))
+    if result.archive == Some(true){
+      Err(Json(ReturnError::new("Input with the provided id doesn't exists. 🙁"))) 
+    }else{
+      Ok(Json(result))
+    }
   }else{
     Err(Json(ReturnError::new("Input with the provided id doesn't exists. 🙁")))
   }

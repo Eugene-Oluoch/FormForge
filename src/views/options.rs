@@ -22,7 +22,11 @@ db::{
 pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
   let option_data = get_by_id::<OptionSelect>(client,"options",id).await.expect("failed");
   if let Some(result) = option_data{
-    Ok(Json(result))
+    if result.archive == Some(true){
+      Err(Json(ReturnError::new("Option with the provided id doesn't exists.")))
+    }else{
+      Ok(Json(result))
+    }
   }else{
     Err(Json(ReturnError::new("Option with the provided id doesn't exists.")))
   }
