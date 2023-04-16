@@ -1,4 +1,4 @@
-use mongodb::{Client, bson::{Document, doc, self, from_bson}, error::Error};
+use mongodb::{Client, bson::{doc, self, from_bson}};
 use rocket::serde::json::Json;
 use crate::{models::{
   select::{Select,SelectReceive},
@@ -19,7 +19,7 @@ use crate::views::{
 };
 
 pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectReceive>,Json<ReturnError>>{
-  let document = get_all::<Select>(client, "crabs_test", "selects", map("select",id.as_str())).await;
+  let document = get_all::<Select>(client, "selects", map("select",id.as_str())).await;
   if let Ok(doc) = document{
     Ok(Json(from_bson(bson::Bson::Document(doc)).expect("Failed here")))
   } else {
@@ -36,7 +36,7 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
   
   // VALIDATION FOR FORM ID
   if let Some(form_id) = &select.form_id{
-    let form = get_by_id::<Form>(client, "crabs_test", "forms", form_id.as_str()).await;
+    let form = get_by_id::<Form>(client,"forms", form_id.as_str()).await;
     if let Ok(result) = form{
       if result == None {
         return Err(Json(ReturnError::new("Form with the provided id doesn't exist 🙂")))
@@ -44,7 +44,7 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
     }
   }
 
-  let results = insert_doc(client, "crabs_test", "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
+  let results = insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
 
   // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
   for option in &mut select.options{
@@ -55,7 +55,7 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
 
   if let Some(form_id) = &select.form_id{
     let document = doc! { "$push": { "selects": trim_quotes(&results) } };
-    update_push::<Form>(client, "crabs_test", "forms", document, form_id).await;
+    update_push::<Form>(client, "forms", document, form_id).await;
   }
 
   Ok(Json(ReturnId::new(trim_quotes(&results).as_str())))
@@ -64,7 +64,7 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
 
 pub async fn delete_select_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   let update = doc! { "$set": {"archive":true} };
-  let results = update_one::<Select>(client, "crabs_test", "selects", id, update).await;
+  let results = update_one::<Select>(client,"selects", id, update).await;
   if let Ok(_) = &results{
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
