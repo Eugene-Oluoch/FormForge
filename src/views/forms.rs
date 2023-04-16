@@ -74,7 +74,7 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
       move || {
           for select in form.selects.iter_mut() {
               select.form_id = Some(form_id_clone.to_string());
-              tokio::runtime::Runtime::new()
+              let _ = tokio::runtime::Runtime::new()
                   .unwrap()
                   .block_on(add_select_helper(select, &*client_clone));
           }
@@ -85,7 +85,7 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
     move || {
         for input in form.inputs.iter_mut() {
             input.form_id = Some(form_id_clone2.to_string());
-            tokio::runtime::Runtime::new()
+            let _ = tokio::runtime::Runtime::new()
                 .unwrap()
                 .block_on(add_input_helper(input, &*client_clone2));
         }
