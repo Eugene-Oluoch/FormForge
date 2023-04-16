@@ -1,4 +1,4 @@
-use mongodb::{Client, bson::doc, error::Error, results::UpdateResult};
+use mongodb::{Client, bson::doc};
 use rocket::serde::json::Json;
 
 use crate::{
@@ -21,7 +21,7 @@ db::{
 };
 
 pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
-  let option_data = get_by_id::<OptionSelect>(&client,"crabs_test","options",id).await.expect("failed");
+  let option_data = get_by_id::<OptionSelect>(&client,"options",id).await.expect("failed");
   if let Some(result) = option_data{
     Ok(Json(result))
   }else{
@@ -35,19 +35,19 @@ pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Resul
 
   // VALIDATE SELECT ID 
   if let Some(select_id) = &option.select_id{
-    let select_requested = get_by_id::<Select>(&client,"crabs_test","selects",select_id.as_str()).await.expect("Failed on db level");
+    let select_requested = get_by_id::<Select>(&client,"selects",select_id.as_str()).await.expect("Failed on db level");
     if select_requested == None{
       return Err("Select with the given id doesn't exist".to_string())
     }
   }
 
   // ID OF CREATED OPTION
-  let option_id = insert_doc(&client, "crabs_test", "options", &option).await.unwrap().inserted_id.to_string();
+  let option_id = insert_doc(&client, "options", &option).await.unwrap().inserted_id.to_string();
 
   // UPDATE OPTIONS IN THE SELECT
   if let Some(select_id) = &option.select_id{
     let document = doc! { "$push": { "options": &option_id.trim_matches('"').to_string() } };
-    update_push::<Select>(&client, "crabs_test", "selects", document, select_id).await;
+    update_push::<Select>(&client,"selects", document, select_id).await;
   }
 
   Ok(option_id.trim_matches('"').to_string())
@@ -67,7 +67,7 @@ pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<J
 
 pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   let update_query = doc! {"$set":{"archive":true}};
-  let results = update_one::<OptionSelect>(client, "crabs_test", "options", id, update_query).await;
+  let results = update_one::<OptionSelect>(client, "options", id, update_query).await;
   if let Ok(_) = &results{
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
