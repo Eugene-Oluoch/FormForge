@@ -63,13 +63,15 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   // ID OF CREATED FORM
   let form_id =trim_quotes(&insert_doc(client, "forms", &form2).await.unwrap().inserted_id.to_string());
 
-  // Clone a reference to the Arc pointer for use in the threads.
+  // FORM_ID REFERNCE CLONE TO PASS TO THREADS
   let form_id_clone = Arc::new(form_id.clone());
   let form_id_clone2 = Arc::clone(&form_id_clone);
+
+  // DB_CONNECTION REFERENCE CLONE TO PASS TO THREADS
   let client_clone = Arc::new(client.clone());
   let client_clone2 = Arc::new(client.clone());
   
-
+  // THREADS TO HANDLE SELECTS AND OPTION CREATION
   let selects_creation = thread::spawn({
       move || {
           for select in form.selects.iter_mut() {
