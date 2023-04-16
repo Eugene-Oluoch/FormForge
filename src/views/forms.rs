@@ -68,8 +68,7 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   let form_id_clone2 = Arc::clone(&form_id_clone);
 
   // DB_CONNECTION REFERENCE CLONE TO PASS TO THREADS
-  let client_clone = Arc::new(client.clone());
-  let client_clone2 = Arc::new(client.clone());
+  let (client_clone,client_clone2) = (Arc::new(client.clone()),Arc::new(client.clone()));
   
   // THREADS TO HANDLE SELECTS AND OPTION CREATION
   let selects_creation = thread::spawn({

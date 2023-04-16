@@ -8,7 +8,6 @@ use crate::db::{
   get_all,
   get_by_id,
   insert_doc,
-  update_push,
   update_one
 };
 use crate::repository::{
@@ -52,7 +51,7 @@ pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Clien
   
     if let Some(form_id) = &select.form_id{
       let document = doc! { "$push": { "selects": trim_quotes(&results) } };
-      update_push::<Form>(client, "forms", document, form_id).await;
+      update_one::<Form>(client, "forms", document, form_id).await;
     }
   
     Ok(trim_quotes(&results))
@@ -72,7 +71,7 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
 
 pub async fn delete_select_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   let update = doc! { "$set": {"archive":true} };
-  let results = update_one::<Select>(client,"selects", id, update).await;
+  let results = update_one::<Select>(client,"selects", update,id).await;
   if let Ok(_) = &results{
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {

@@ -4,7 +4,7 @@ use crate::{
   db::{
     get_by_id,
     insert_doc,
-    update_push
+    update_one
   },
   models::{
     input::{Input},
@@ -44,7 +44,7 @@ pub async fn add_input_helper<'a>(input:&'a mut Input,client:&'a Client) -> Resu
   // UPDATE FORM'S Inputs
   if let Some(form) = &input.form_id{
     let document = doc! { "$push": { "inputs": &input_id.trim_matches('"').to_string() } };
-    update_push::<Form>(client,"forms", document, form).await;
+    update_one::<Form>(client,"forms", document, form).await;
   }
 
   Ok(trim_quotes(&input_id))
