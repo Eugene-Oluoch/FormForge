@@ -44,7 +44,12 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
       final_result.selects = Vec::new();
     }
 
-    Ok(Json(final_result))
+    if final_result.archive == Some(true){
+      Err(Json(ReturnMessage::new("Failed to get the form 🙁"))) 
+    }else{
+      Ok(Json(final_result))
+    }
+
   } else {
     Err(Json(ReturnMessage::new("Failed to get the form 🙁")))
   }
