@@ -6,7 +6,7 @@ use crate::models::{
   select::{SelectReceive}
 };
 use uuid::Uuid;
-
+use chrono::Utc;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
@@ -63,8 +63,8 @@ impl FormReceive {
 
 impl ResetDefaults for Form{
   fn reset(&mut self) {
-    self.updated_at = None;
-    self.created_at = None;
+    self.updated_at = Some(Utc::now().timestamp_millis());
+    self.created_at = Some(Utc::now().timestamp_millis());
     self.archive = None;
     self._id = Some(Uuid::new_v4().to_string())
   }
