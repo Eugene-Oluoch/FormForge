@@ -48,15 +48,17 @@ pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Clien
     let results = insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
   
     // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
-    for option in &mut select.options{
-      option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
-      let _ = add_option_helper(option, client).await;
+    if let Some(options) = &mut select.options{
+      for option in options{
+        option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
+        let _ = add_option_helper(option, client).await;
+      }
     }
   
   
     if let Some(form_id) = &select.form_id{
       let document = doc! { "$push": { "selects": trim_quotes(&results) } };
-      update_one::<Form>(client, "forms", document, form_id).await;
+      let _ = update_one::<Form>(client, "forms", document, form_id).await;
     }
   
     Ok(trim_quotes(&results))

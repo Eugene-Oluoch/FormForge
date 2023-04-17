@@ -2,6 +2,7 @@ use std::{thread, sync::{Arc}};
 
 use mongodb::{Client, bson::{from_bson, self}};
 use rocket::serde::json::Json;
+use tokio::sync::watch::error;
 
 use crate::{
   db::{
@@ -9,12 +10,12 @@ use crate::{
     insert_doc
   },
   models::{
-    form::{Form,FormReceive}, traits::ResetDefaults
+    form::{Form,FormReceive}, traits::ResetDefaults, select::SelectReceive
   },
   utils::{
     ReturnMessage,
     ReturnId,
-    trim_quotes
+    trim_quotes, ReturnErrors
   },
   repository::{
     map
@@ -40,8 +41,11 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
     let mut final_result:FormReceive = from_bson(bson::Bson::Document(result)).expect("failed");
 
     // RESET SELECTS IF MONGO RETURN A NONE RECORD
-    if final_result.selects.len() == 1 && final_result.selects[0]._id == None{
-      final_result.selects = Vec::new();
+    if let Some(selects) = &final_result.selects{
+      if selects.len() == 1 && selects[0]._id == None{
+        let reset_selects:Vec<SelectReceive> = Vec::new();
+        final_result.selects = Some(reset_selects);
+      }
     }
 
     if final_result.archive == Some(true){
@@ -56,11 +60,21 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
 }
 
 
+pub async fn validate(form:&FormReceive)-> Option<ReturnErrors>{
+
+  if form.name == None{
+    Some(ReturnErrors::new(["Name is required!".to_string()].to_vec()))
+  }else{
+    None
+  }
+
+}
+
 pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<ReturnId>{
   let mut form = data.0;
 
   // GENERATE A RANDOM ID FOR FORM
-  let mut form2 = form.convert(Vec::new(),Vec::new());
+  let mut form2 = form.convert(Some(Vec::new()),Some(Vec::new()));
   let _ = &mut form2.reset();
 
 
@@ -78,23 +92,27 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   // THREADS TO HANDLE SELECTS AND OPTION CREATION
   let selects_creation = thread::spawn({
       move || {
-          for select in form.selects.iter_mut() {
+        if let Some(selects) = &mut form.selects{
+          for select in selects.iter_mut() {
               select.form_id = Some(form_id_clone.to_string());
               let _ = tokio::runtime::Runtime::new()
                   .unwrap()
                   .block_on(add_select_helper(select, &*client_clone));
           }
+        }
       }
     });
   
   let inputs_creation = thread::spawn({
     move || {
-        for input in form.inputs.iter_mut() {
+      if let Some(inputs) = &mut form.inputs{
+        for input in inputs.iter_mut() {
             input.form_id = Some(form_id_clone2.to_string());
             let _ = tokio::runtime::Runtime::new()
                 .unwrap()
                 .block_on(add_input_helper(input, &*client_clone2));
         }
+      }
     }
   });
   

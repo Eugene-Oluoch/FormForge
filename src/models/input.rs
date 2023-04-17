@@ -9,11 +9,11 @@ use uuid::Uuid;
 pub struct Input{
   pub _id: Option<String>,
   pub form_id:Option<String>,
-  pub type_identifier:String,
-  pub disabled:bool,
+  pub type_identifier:Option<String>,
+  pub disabled:Option<bool>,
   pub placeholder:Option<String>,
   pub label:Option<String>,
-  pub name:String,
+  pub name:Option<String>,
   pub validation:Option<Validate>,
   pub step:Option<i32>,
   pub archive:Option<bool>,
@@ -30,11 +30,11 @@ impl Input  {
       updated_at: None,
       archive:None,
       form_id:None,
-      type_identifier:"text".to_string(),
+      type_identifier:Some("text".to_string()),
       placeholder:None,
       label:None,
-      disabled: false,
-      name:String::from("name"),
+      disabled: Some(false),
+      name:Some(String::from("name")),
       validation:Some(Validate::new()),
       step:None,
       _id:None
@@ -57,9 +57,10 @@ impl Input  {
       "month",
       "datetime-local"
     ];
-
-    if types.contains(&self.type_identifier.to_lowercase().as_str()) == false{
-      self.type_identifier = "text".to_string();
+    if let Some(t) = &self.type_identifier{
+      if types.contains(&t.to_lowercase().as_str()) == false{
+        self.type_identifier = Some("text".to_string())
+      }
     }
   }
 
