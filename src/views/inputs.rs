@@ -13,7 +13,8 @@ use crate::{
   utils::{
     ReturnError,
     ReturnId,
-    trim_quotes
+    trim_quotes,
+    ReturnErrors
   }
 };
 
@@ -32,6 +33,22 @@ pub async fn get_input_view<'a>(id:&str,client:&Client) -> Result<Json<Input>,Js
   }
 }
 
+pub async fn validate(input:&Input) -> ReturnErrors{
+  let mut errors:Vec<String> = vec![];
+
+
+  if input.type_identifier == None{
+    errors.push("Type identifier is required!".to_string());
+  }
+
+  if input.name == None{
+    errors.push("Name is required!".to_string());
+  }
+
+  ReturnErrors::new(errors)
+
+}
+
 pub async fn add_input_helper<'a>(input:&'a mut Input,client:&'a Client) -> Result<String,&'a str> {
   let _ = input.reset();
   let _ = input.map_type();
@@ -48,20 +65,20 @@ pub async fn add_input_helper<'a>(input:&'a mut Input,client:&'a Client) -> Resu
   // UPDATE FORM'S Inputs
   if let Some(form) = &input.form_id{
     let document = doc! { "$push": { "inputs": &input_id.trim_matches('"').to_string() } };
-    update_one::<Form>(client,"forms", document, form).await;
+    let _ = update_one::<Form>(client,"forms", document, form).await;
   }
 
   Ok(trim_quotes(&input_id))
 
 }
 
-pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnError>> {
+pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnErrors>> {
   let mut input = data.0;
   let results = add_input_helper(&mut input, client).await;
   if let Ok(id) = results{
     Ok(Json(ReturnId::new(&id)))
   }else{
-    Err(Json(ReturnError::new("Form with the provided id doesn't exists 🙁")))
+    Err(Json(ReturnErrors::new(["Form with the provided id doesn't exists 🙁".to_string()].to_vec())))
   }
   
 }

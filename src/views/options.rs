@@ -10,7 +10,8 @@ use crate::{
 utils::{
   ReturnId, 
   ReturnError,
-  ReturnMessage
+  ReturnMessage,
+  ReturnErrors
 },
 db::{
   get_by_id,
@@ -19,16 +20,26 @@ db::{
 }
 };
 
-pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSelect>,Json<ReturnError<'a>>>{
+
+pub async fn validate(option:&OptionSelect)->Option<ReturnErrors>{
+  if option.name == None{
+    Some(ReturnErrors::new(["Name is required!".to_string()].to_vec()))
+  }else{
+    None
+  }
+}
+
+pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSelect>,Json<ReturnErrors>>{
+
   let option_data = get_by_id::<OptionSelect>(client,"options",id).await.expect("failed");
   if let Some(result) = option_data{
     if result.archive == Some(true){
-      Err(Json(ReturnError::new("Option with the provided id doesn't exists.")))
+      Err(Json(ReturnErrors::new(["Option with the provided id doesn't exists.".to_string()].to_vec())))
     }else{
       Ok(Json(result))
     }
   }else{
-    Err(Json(ReturnError::new("Option with the provided id doesn't exists.")))
+    Err(Json(ReturnErrors::new(["Option with the provided id doesn't exists.".to_string()].to_vec())))
   }
 }
 
@@ -50,20 +61,20 @@ pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Resul
   // UPDATE OPTIONS IN THE SELECT
   if let Some(select_id) = &option.select_id{
     let document = doc! { "$push": { "options": &option_id.trim_matches('"').to_string() } };
-    update_one::<Select>(client,"selects", document, select_id).await;
+    let _ = update_one::<Select>(client,"selects", document, select_id).await;
   }
 
   Ok(option_id.trim_matches('"').to_string())
 
 }
 
-pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnError>> {
+pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnErrors>> {
   let mut option = data.0;
   let results = add_option_helper(&mut option, client).await;
   if let Ok(result) = results{
     Ok(Json(ReturnId::new(result.as_str())))
   }else{
-    Err(Json(ReturnError::new("Failed")))
+    Err(Json(ReturnErrors::new(["Failed".to_string()].to_vec())))
   }
 }
 
