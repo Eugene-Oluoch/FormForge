@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use crate::OptionSelect;
 use crate::models::traits::ResetDefaults;
 use uuid::Uuid;
-
+use chrono::Utc;
 
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Select{
@@ -35,8 +35,8 @@ pub struct SelectReceive{
 
 impl ResetDefaults for SelectReceive{
   fn reset(&mut self) {
-    self.updated_at = None;
-    self.created_at = None;
+    self.updated_at = Some(Utc::now().timestamp_millis());
+    self.created_at = Some(Utc::now().timestamp_millis());
     self.archive = Some(false);
     self._id = Some(Uuid::new_v4().to_string())
   }

@@ -3,7 +3,7 @@ use crate::models::traits::ResetDefaults;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson, Document};
 use uuid::Uuid;
-
+use chrono::Utc;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
@@ -69,8 +69,8 @@ impl Input  {
 impl ResetDefaults for Input{
   fn reset(&mut self) {
       self.archive = None;
-      self.created_at = None;
-      self.updated_at = None;
+      self.updated_at = Some(Utc::now().timestamp_millis());
+      self.created_at = Some(Utc::now().timestamp_millis());
       self._id = Some(Uuid::new_v4().to_string());
   }
 }
