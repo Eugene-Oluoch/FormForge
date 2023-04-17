@@ -46,6 +46,19 @@ impl <'a> ReturnError <'a> {
   }
 }
 #[derive(Serialize,Deserialize)]
+pub struct ReturnErrors{
+  pub errors:Vec<String>
+}
+
+impl ReturnErrors{
+  pub fn new(errors:Vec<String>) -> Self{
+    Self{
+      errors
+    }
+  }
+}
+
+#[derive(Serialize,Deserialize)]
 pub struct ReturnMessage<'a>{
   message:&'a str
 }
