@@ -25,7 +25,7 @@ pub struct SelectReceive{
   pub form_id:Option<String>,
   pub multiple:Option<bool>,
   pub size:Option<String>,
-  pub options:Vec<OptionSelect>,
+  pub options:Option<Vec<OptionSelect>>,
   pub validation:Option<String>,
   pub step:Option<i32>,
   pub archive:Option<bool>,

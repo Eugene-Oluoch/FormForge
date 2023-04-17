@@ -11,9 +11,9 @@ use uuid::Uuid;
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
   pub _id: Option<String>,
-  pub name:String,
-  pub inputs: Vec<String>,
-  pub selects: Vec<String>,
+  pub name:Option<String>,
+  pub inputs: Option<Vec<String>>,
+  pub selects: Option<Vec<String>>,
   pub steps:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
@@ -22,9 +22,9 @@ pub struct Form {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FormReceive {
   pub _id: Option<String>,
-  pub name:String,
-  pub inputs: Vec<Input>,
-  pub selects: Vec<SelectReceive>,
+  pub name:Option<String>,
+  pub inputs: Option<Vec<Input>>,
+  pub selects: Option<Vec<SelectReceive>>,
   pub steps:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
@@ -37,10 +37,10 @@ impl Form{
         created_at: None,
         updated_at: None,
         archive:None,
-        inputs:vec![],
+        inputs:Some(vec![]),
         steps: None,
-        name: String::from("default"),
-        selects: vec![],
+        name: Some(String::from("default")),
+        selects: Some(vec![]),
         _id:None
     }
   }
@@ -48,7 +48,7 @@ impl Form{
 }
 
 impl FormReceive {
-  pub fn convert(&self,inputs:Vec<String>,selects:Vec<String>) -> Form{
+  pub fn convert(&self,inputs:Option<Vec<String>>,selects:Option<Vec<String>>) -> Form{
     Form { 
       _id: None, 
       name: self.name.clone(), 
