@@ -2,7 +2,6 @@ use std::{thread, sync::{Arc}};
 
 use mongodb::{Client, bson::{from_bson, self}};
 use rocket::serde::json::Json;
-use tokio::sync::watch::error;
 
 use crate::{
   db::{
@@ -37,6 +36,7 @@ use crate::{
 
 pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormReceive>,Json<ReturnMessage<'a>>>{
   let results = get_all::<Form>(client,"forms", map("form",id.as_str())).await;
+  
   if let Ok(result) = results{
     let mut final_result:FormReceive = from_bson(bson::Bson::Document(result)).expect("failed");
 
