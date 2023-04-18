@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use mongodb::{bson::{Document, doc, Bson}};
 use crate::models::traits::ResetDefaults;
 use uuid::Uuid;
-use chrono::Utc;
+use crate::utils::{generate_current_time};
 
 // ADD ARCHIVE TO HANDLE DELETE -> SOFT DELETE
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
@@ -45,10 +45,13 @@ impl OptionSelect {
 
 impl ResetDefaults for OptionSelect{
   fn reset(&mut self) {
-      self.updated_at = Some(Utc::now().timestamp_millis());
-      self.created_at = Some(Utc::now().timestamp_millis());
+      self.updated_at = Some(generate_current_time());
+      self.created_at = Some(generate_current_time());
       self.archive = Some(false);
       self._id = Some(Uuid::new_v4().to_string())
+  }
+  fn update(&mut self) {
+      self.updated_at = Some(generate_current_time())
   }
 }
 

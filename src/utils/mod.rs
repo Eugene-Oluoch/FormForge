@@ -1,9 +1,14 @@
 use serde::{Serialize, Deserialize};
 use mongodb::{Client};
-
+use chrono::Utc;
 
 pub fn trim_quotes(string:&String) -> String{
   string.trim_matches('"').to_string()
+}
+
+
+pub fn generate_current_time() -> i64{
+  Utc::now().timestamp_millis()
 }
 
 #[derive(Clone)]

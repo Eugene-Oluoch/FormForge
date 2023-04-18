@@ -1,10 +1,10 @@
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson,Document};
-use crate::models::{
+use crate::{models::{
   traits::{ResetDefaults},
   input::{Input},
   select::{SelectReceive}
-};
+}, utils::generate_current_time};
 use uuid::Uuid;
 use chrono::Utc;
 
@@ -63,10 +63,13 @@ impl FormReceive {
 
 impl ResetDefaults for Form{
   fn reset(&mut self) {
-    self.updated_at = Some(Utc::now().timestamp_millis());
-    self.created_at = Some(Utc::now().timestamp_millis());
+    self.updated_at = Some(generate_current_time());
+    self.created_at = Some(generate_current_time());
     self.archive = Some(false);
     self._id = Some(Uuid::new_v4().to_string())
+  }
+  fn update(&mut self) {
+      self.updated_at = Some(generate_current_time())
   }
 }
 
