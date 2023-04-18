@@ -22,5 +22,3 @@ pub async fn add_form(data:Json<FormReceive>,client:&State<StateCustom>) -> Resu
     Ok(add_form_view(data, &client.client).await)
   }
 }
-
-

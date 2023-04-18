@@ -17,7 +17,7 @@ use urls::{
   options::{get_option_by_id,add_option,delete_option},
   selects::{get_select_by_id,add_select,delete_select},
   forms::{get_form,add_form},
-  inputs::{get_input,add_input}
+  inputs::{get_input,add_input,delete_input}
 };
 
 // bson::from_bson(bson::Bson::Document(doc)).unwrap() -> To convert mongo Document to struct
@@ -33,7 +33,7 @@ async fn main() {
       .mount("/", routes![welcome])
       .mount("/options/", routes![get_option_by_id,add_option,delete_option])
       .mount("/selects/",routes![get_select_by_id,add_select,delete_select])
-      .mount("/inputs", routes![get_input,add_input])
+      .mount("/inputs", routes![get_input,add_input,delete_input])
       .mount("/forms/",routes![get_form,add_form])
       .launch()
       .await;

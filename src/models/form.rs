@@ -65,7 +65,7 @@ impl ResetDefaults for Form{
   fn reset(&mut self) {
     self.updated_at = Some(Utc::now().timestamp_millis());
     self.created_at = Some(Utc::now().timestamp_millis());
-    self.archive = None;
+    self.archive = Some(false);
     self._id = Some(Uuid::new_v4().to_string())
   }
 }
