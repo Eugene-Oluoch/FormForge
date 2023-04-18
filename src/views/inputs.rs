@@ -14,7 +14,8 @@ use crate::{
     ReturnError,
     ReturnId,
     trim_quotes,
-    ReturnErrors
+    ReturnErrors,
+    ReturnMessage
   }
 };
 
@@ -81,4 +82,14 @@ pub async fn add_input_view(data:Json<Input>,client:&Client) -> Result<Json<Retu
     Err(Json(ReturnErrors::new(["Form with the provided id doesn't exists 🙁".to_string()].to_vec())))
   }
   
+}
+
+pub async fn delete_input_view<'a> (id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  let update = doc! {"$set":{"archive":true}};
+  let results = update_one::<Input>(client, "inputs", update, id).await;
+  if let Ok(_) = results{
+    Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
+  } else {
+    Err(Json(ReturnError::new("Sorry its not you its us 🙁")))
+  }
 }
