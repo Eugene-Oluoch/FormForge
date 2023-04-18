@@ -3,13 +3,13 @@ use rocket::State;
 use rocket::serde::json::Json;
 use crate::{
   views::{
-    inputs::{add_input_view,get_input_view,validate}
+    inputs::{add_input_view,get_input_view,validate,delete_input_view}
   },
   utils::{
     StateCustom,
     ReturnError,
     ReturnId,
-    ReturnErrors
+    ReturnErrors, ReturnMessage
   },
   models::{
     input::{Input}
@@ -31,4 +31,9 @@ pub async fn add_input(data:Json<Input>,client:&State<StateCustom>) -> Result<Js
   }else{
     add_input_view(data, &client.client).await
   }
+}
+
+#[delete("/<id>")]
+pub async fn delete_input<'a>(id:&'a str,client:&'a State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  delete_input_view(id, &client.client).await
 }
