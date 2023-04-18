@@ -52,7 +52,7 @@ pub async fn get_all<T>(client:&Client,collection:&str,pipeline:Vec<Document>) -
   }
 }
 
-pub async fn update_many<T>(client:&Client,collection:&str,match_:Document,action:Document,id:&str){
+pub async fn update_many<T>(client:&Client,collection:&str,match_:Document,action:Document){
   let col:Collection<T> = create_collection(client,collection).await;
   println!("{:?}",col.update_many(match_,action,None).await.expect("testing"));
 }
