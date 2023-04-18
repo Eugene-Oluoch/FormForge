@@ -3,7 +3,9 @@ use crate::models::traits::ResetDefaults;
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson, Document};
 use uuid::Uuid;
-use chrono::Utc;
+use crate::utils::{
+  generate_current_time
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Input{
@@ -69,9 +71,12 @@ impl Input  {
 impl ResetDefaults for Input{
   fn reset(&mut self) {
       self.archive = None;
-      self.updated_at = Some(Utc::now().timestamp_millis());
-      self.created_at = Some(Utc::now().timestamp_millis());
+      self.updated_at = Some(generate_current_time());
+      self.created_at = Some(generate_current_time());
       self._id = Some(Uuid::new_v4().to_string());
+  }
+  fn update(&mut self) {
+      self.updated_at = Some(generate_current_time())
   }
 }
 
