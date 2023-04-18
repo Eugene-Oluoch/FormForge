@@ -1,20 +1,27 @@
 use std::{thread, sync::{Arc}};
 
-use mongodb::{Client, bson::{from_bson, self}};
+use mongodb::{Client, bson::{from_bson, self, doc}};
 use rocket::serde::json::Json;
 
 use crate::{
   db::{
     get_all,
-    insert_doc
+    insert_doc,
+    update_many,
+    update_one
   },
   models::{
-    form::{Form,FormReceive}, traits::ResetDefaults, select::SelectReceive
+    form::{Form,FormReceive}, 
+    traits::ResetDefaults, 
+    select::{SelectReceive, Select},
+    input::{Input}
   },
   utils::{
     ReturnMessage,
     ReturnId,
-    trim_quotes, ReturnErrors
+    trim_quotes, 
+    ReturnErrors,
+    ReturnError
   },
   repository::{
     map
@@ -124,4 +131,26 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
 
 
   Json(ReturnId::new(&form_id.to_string()))
+}
+
+pub async fn delete_form_view<'a>(id:&'a str,client:&'a Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+
+  let update = doc! { "$set": {"archive":true} };
+  let results = update_one::<Form>(client,"forms", update,id).await;
+
+  
+
+  if let Ok(_) = &results{
+
+    // ARCHIVE FORM'S INPUTS
+    update_many::<Input>(client, "inputs", doc! {"form_id":id}, doc! {"$set":{"archive":true}}).await;
+    
+    // ARCHIVE FORM'S SELECTS(NOTE: not handled options nested inside the selects)
+    update_many::<Select>(client, "selects", doc! {"form_id":id}, doc! {"$set":{"archive":true}}).await;
+
+    Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
+  }else {
+    Err(Json(ReturnError::new("Failed to delete 🙁")))
+  }
+
 }

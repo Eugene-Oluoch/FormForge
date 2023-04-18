@@ -2,13 +2,15 @@ use mongodb::{Client, bson::{doc, self, from_bson}};
 use rocket::serde::json::Json;
 use crate::{models::{
   select::{Select,SelectReceive},
-  form::{Form}, traits::ResetDefaults
+  form::{Form}, traits::ResetDefaults,
+  option::{OptionSelect}
 }, utils::{ReturnId, trim_quotes, ReturnError, ReturnMessage}};
 use crate::db::{
   get_all,
   get_by_id,
   insert_doc,
-  update_one
+  update_one,
+  update_many
 };
 use crate::repository::{
   map
@@ -79,7 +81,15 @@ pub async fn add_select_view(data:Json<SelectReceive>,client:&Client) -> Result<
 pub async fn delete_select_view<'a>(id:&str,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   let update = doc! { "$set": {"archive":true} };
   let results = update_one::<Select>(client,"selects", update,id).await;
+
+  
+
   if let Ok(_) = &results{
+
+    // ARCHIVE SELECT'S OPTIONS
+    update_many::<OptionSelect>(client, "options", doc! {"select_id":id}, doc! {"$set":{"archive":true}}).await;
+
+
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
     Err(Json(ReturnError::new("Failed to delete 🙁")))

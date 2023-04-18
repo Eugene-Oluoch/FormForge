@@ -16,7 +16,7 @@ use models::{
 use urls::{
   options::{get_option_by_id,add_option,delete_option},
   selects::{get_select_by_id,add_select,delete_select},
-  forms::{get_form,add_form},
+  forms::{get_form,add_form,delete_form},
   inputs::{get_input,add_input,delete_input}
 };
 
@@ -34,7 +34,7 @@ async fn main() {
       .mount("/options/", routes![get_option_by_id,add_option,delete_option])
       .mount("/selects/",routes![get_select_by_id,add_select,delete_select])
       .mount("/inputs", routes![get_input,add_input,delete_input])
-      .mount("/forms/",routes![get_form,add_form])
+      .mount("/forms/",routes![get_form,add_form,delete_form])
       .launch()
       .await;
 }

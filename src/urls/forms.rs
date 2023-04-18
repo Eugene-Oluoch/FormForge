@@ -1,10 +1,10 @@
 use rocket::State;
 use rocket::serde::json::Json;
 use crate::models::form::{FormReceive};
-use crate::utils::{StateCustom, ReturnMessage, ReturnId, ReturnErrors};
+use crate::utils::{StateCustom, ReturnMessage, ReturnId, ReturnErrors, ReturnError};
 use crate::{
   views::{
-    forms::{get_form_view,add_form_view,validate}
+    forms::{get_form_view,add_form_view,validate,delete_form_view}
   }
 };
 
@@ -21,4 +21,9 @@ pub async fn add_form(data:Json<FormReceive>,client:&State<StateCustom>) -> Resu
   }else{
     Ok(add_form_view(data, &client.client).await)
   }
+}
+
+#[delete("/<id>")]
+pub async fn delete_form<'a>(id:&'a str,client:&'a State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  delete_form_view(id,&client.client).await
 }
