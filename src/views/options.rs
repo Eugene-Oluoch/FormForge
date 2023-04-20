@@ -98,6 +98,16 @@ pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<Retur
 
 */
 
+pub async fn update_remove_from_select(id:&str,select_id:&str,client:&Client){
+  let select_remove_option = doc! {"$pullAll":{"options":[id]}};
+  let _ = update_one::<Select>(client, "selects", select_remove_option, select_id).await;
+}
+
+pub async fn update_add_to_select(id:&str,select_id:&str,client:&Client){
+  let select_update = doc! {"$push":{"options":&id}};
+  let _ = update_one::<Select>(client, "selects", select_update, select_id).await;
+}
+
 
 pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
 
@@ -109,6 +119,45 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
   data.created_at = option.created_at;
 
   // TODO HANDLE WHEN SELECT ID CHANGES
+
+  if let (Some(s_id),Some(s_id2)) = (&option.select_id,&data.select_id){
+    if s_id != s_id2{
+      // Update the select that is in option and update the new select
+      // Valid if the provided select exists
+      let new_select = get_by_id::<Select>(client, "selects", &s_id2).await.expect("failed");
+      if new_select.is_none(){
+        return Err(Json(ReturnError::new("Select with the provided select id doesn't exist🙁")))
+      }
+
+      // UPDATE PREVIOUS SELECT
+      let _ = update_remove_from_select(&id, &s_id, client).await;
+
+      // UPDATE NEWLY SELECTED SELECT
+      let _ = update_add_to_select(&id, &s_id2, client).await;
+
+    }
+  }
+  else{
+    if option.select_id.is_none() && data.select_id.is_some(){
+      // VALIDATE IF THE PROVIDED SELECT EXISTS
+      if let Some(s_id) = &data.select_id{
+        let new_select = get_by_id::<Select>(client, "selects", &s_id).await.expect("failed");
+        if new_select.is_none(){
+          return Err(Json(ReturnError::new("Select with the provided select id doesn't exist🙁")))
+        }
+
+        // UPDATE NEWLY SELECTED SELECT
+        let _ = update_add_to_select(&id, &s_id, client).await;
+      }
+
+    }else if option.select_id.is_some() && data.select_id.is_none(){
+      // REMOVE OPTION FROM SELECT
+      let _ = update_remove_from_select(&id,&option.select_id.unwrap(), client).await;
+      // UPDATE DATA 
+      data.select_id = None;
+
+    }
+  }
 
   let bson = to_bson(&data).unwrap();
   let update_query = doc! {"$set":bson.as_document().unwrap().to_owned()};
