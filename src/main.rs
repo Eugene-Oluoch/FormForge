@@ -14,7 +14,7 @@ use models::{
   option::{OptionSelect}
 };
 use urls::{
-  options::{get_option_by_id,add_option,delete_option},
+  options::{get_option_by_id,add_option,delete_option, update_option},
   selects::{get_select_by_id,add_select,delete_select},
   forms::{get_form,add_form,delete_form},
   inputs::{get_input,add_input,delete_input}
@@ -31,7 +31,7 @@ async fn main() {
     let _ = rocket::build()
       .manage(StateCustom::new(client))
       .mount("/", routes![welcome])
-      .mount("/options/", routes![get_option_by_id,add_option,delete_option])
+      .mount("/options/", routes![get_option_by_id,add_option,update_option,delete_option])
       .mount("/selects/",routes![get_select_by_id,add_select,delete_select])
       .mount("/inputs", routes![get_input,add_input,delete_input])
       .mount("/forms/",routes![get_form,add_form,delete_form])
