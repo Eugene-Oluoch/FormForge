@@ -7,6 +7,7 @@ use crate::views::{
   options::{
     add_option_view,
     get_option_view,
+    update_option_view,
     delete_option_view,
     validate
   }
@@ -28,6 +29,13 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
     add_option_view(data, &client.client).await
   }
 }
+
+#[put("/<id>",data="<data>")]
+pub async fn update_option<'a>(id:&'a str,data:Json<OptionSelect>,client:&'a State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+  let option = data.0;
+  update_option_view(id, option, &client.client).await
+}
+
 
 
 #[delete("/<id>")]
