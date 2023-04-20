@@ -68,8 +68,8 @@ pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Resul
 
 }
 
-pub async fn add_option_view(data:Json<OptionSelect>,client:&Client) -> Result<Json<ReturnId>,Json<ReturnErrors>> {
-  let mut option = data.0;
+pub async fn add_option_view(data:OptionSelect,client:&Client) -> Result<Json<ReturnId>,Json<ReturnErrors>> {
+  let mut option = data;
   let results = add_option_helper(&mut option, client).await;
   if let Ok(result) = results{
     Ok(Json(ReturnId::new(result.as_str())))
@@ -90,13 +90,7 @@ pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<Retur
 
 }
 
-// UPDATE FN REQUIREMENTS
-/* 
--> FETCH THE OPTION AND COMPARE MOST OF THE FIELDS
--> IF SELECT_ID DON'T MATCH UPDATE BOTH SELECT_ID field AND SELECT SIDE
 
-
-*/
 
 pub async fn update_remove_from_select(id:&str,select_id:&str,client:&Client){
   let select_remove_option = doc! {"$pullAll":{"options":[id]}};
@@ -109,7 +103,7 @@ pub async fn update_add_to_select(id:&str,select_id:&str,client:&Client){
 }
 
 
-pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
 
   let option = get_by_id::<OptionSelect>(client, "options", id).await.expect("failed").unwrap();
 
@@ -126,7 +120,7 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
       // Valid if the provided select exists
       let new_select = get_by_id::<Select>(client, "selects", &s_id2).await.expect("failed");
       if new_select.is_none(){
-        return Err(Json(ReturnError::new("Select with the provided select id doesn't exist🙁")))
+        return Err(Json(ReturnErrors::new(["Select with the provided select id doesn't exist🙁".to_string()].to_vec())))
       }
 
       // UPDATE PREVIOUS SELECT
@@ -143,7 +137,7 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
       if let Some(s_id) = &data.select_id{
         let new_select = get_by_id::<Select>(client, "selects", &s_id).await.expect("failed");
         if new_select.is_none(){
-          return Err(Json(ReturnError::new("Select with the provided select id doesn't exist🙁")))
+          return Err(Json(ReturnErrors::new(["Select with the provided select id doesn't exist🙁".to_string()].to_vec())))
         }
 
         // UPDATE NEWLY SELECTED SELECT
@@ -164,7 +158,7 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
   let results = update_one::<OptionSelect>(client, "options", update_query, id).await;
   match &results {
     Ok(_) => Ok(Json(ReturnMessage::new("Updated successfully 🙂"))),
-    Err(_) => Err(Json(ReturnError::new("Failed to update 🙁")))
+    Err(_) => Err(Json(ReturnErrors::new(["Failed to update 🙁".to_string()].to_vec())))
   }
 
 }
