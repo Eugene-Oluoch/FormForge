@@ -1,4 +1,4 @@
-use mongodb::{Client, bson::doc};
+use mongodb::{Client, bson::{doc, to_bson}};
 use rocket::serde::json::Json;
 
 use crate::{
@@ -86,6 +86,36 @@ pub async fn delete_option_view<'a>(id:&str,client:&Client) -> Result<Json<Retur
     Ok(Json(ReturnMessage::new("Deleted successfully 🙂")))
   }else {
     Err(Json(ReturnError::new("Failed to delete 🙁")))
+  }
+
+}
+
+// UPDATE FN REQUIREMENTS
+/* 
+-> FETCH THE OPTION AND COMPARE MOST OF THE FIELDS
+-> IF SELECT_ID DON'T MATCH UPDATE BOTH SELECT_ID field AND SELECT SIDE
+
+
+*/
+
+
+pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
+
+  let option = get_by_id::<OptionSelect>(client, "options", id).await.expect("failed").unwrap();
+
+  // UPDATES UPDATE AT
+  data.update();
+  data._id = option._id;
+  data.created_at = option.created_at;
+
+  // TODO HANDLE WHEN SELECT ID CHANGES
+
+  let bson = to_bson(&data).unwrap();
+  let update_query = doc! {"$set":bson.as_document().unwrap().to_owned()};
+  let results = update_one::<OptionSelect>(client, "options", update_query, id).await;
+  match &results {
+    Ok(_) => Ok(Json(ReturnMessage::new("Updated successfully 🙂"))),
+    Err(_) => Err(Json(ReturnError::new("Failed to update 🙁")))
   }
 
 }
