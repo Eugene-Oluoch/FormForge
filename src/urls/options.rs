@@ -26,14 +26,17 @@ pub async fn add_option(data:Json<OptionSelect>,client:&State<StateCustom>) -> R
   if let Some(error) = validate(&data.0).await{
     Err(Json(error))
   }else{
-    add_option_view(data, &client.client).await
+    add_option_view(data.0, &client.client).await
   }
 }
 
 #[put("/<id>",data="<data>")]
-pub async fn update_option<'a>(id:&'a str,data:Json<OptionSelect>,client:&'a State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
-  let option = data.0;
-  update_option_view(id, option, &client.client).await
+pub async fn update_option<'a>(id:&'a str,data:Json<OptionSelect>,client:&'a State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
+  if let Some(error) = validate(&data.0).await{
+    Err(Json(error))
+  }else{
+    update_option_view(id, data.0, &client.client).await
+  }
 }
 
 
