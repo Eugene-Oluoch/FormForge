@@ -4,7 +4,7 @@ use crate::models::form::{FormReceive};
 use crate::utils::{StateCustom, ReturnMessage, ReturnId, ReturnErrors, ReturnError};
 use crate::{
   views::{
-    forms::{get_form_view,add_form_view,validate,delete_form_view}
+    forms::{get_form_view,add_form_view,update_form_view,validate,delete_form_view}
   }
 };
 
@@ -20,6 +20,15 @@ pub async fn add_form(data:Json<FormReceive>,client:&State<StateCustom>) -> Resu
     Err(Json(errors))
   }else{
     Ok(add_form_view(data, &client.client).await)
+  }
+}
+
+#[put("/<id>",data="<data>")]
+pub async fn update_form<'a>(id:&'a str,data:Json<FormReceive>,client:&'a State<StateCustom>)-> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
+  if let Some(errors) = validate(&data.0).await{
+    Err(Json(errors))
+  }else{
+    update_form_view(id, data.0, &client.client).await
   }
 }
 

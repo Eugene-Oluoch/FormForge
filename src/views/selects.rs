@@ -4,7 +4,7 @@ use crate::{models::{
   select::{Select,SelectReceive},
   form::{Form}, traits::ResetDefaults,
   option::{OptionSelect}
-}, utils::{ReturnId, trim_quotes, ReturnError, ReturnMessage}};
+}, utils::{ReturnId, trim_quotes, ReturnError, ReturnMessage, ReturnErrors,update_document,update_form_id_cases}};
 use crate::db::{
   get_all,
   get_by_id,
@@ -94,4 +94,44 @@ pub async fn delete_select_view<'a>(id:&str,client:&Client) -> Result<Json<Retur
   }else {
     Err(Json(ReturnError::new("Failed to delete 🙁")))
   }
+}
+
+
+// VALIDATE REQUIRED FIELD
+pub async fn update_select_view<'a>(id:&'a str,select:SelectReceive,client:&'a Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
+
+  // TODO VALIDATE SELECT EXISTS
+  let mut select_results:Select = get_by_id::<Select>(client, "selects", &id).await.expect("Failed").unwrap();
+
+
+  // UPATED UPDATED AT
+  let _ = &mut select_results.update();
+
+
+  // HANDLE FORM ID UPDATE CASES
+  let form_id_results = update_form_id_cases(&select_results.form_id, &select.form_id, client, id,"selects").await;
+  if let Err(err) = form_id_results{
+    return Err(err);
+  }
+
+  if let Ok(data) = form_id_results{
+    if let Some(id) = data{
+      if id.to_lowercase() != "ignore".to_string().to_lowercase(){
+        select_results.form_id = Some(id);
+      }
+    }else{
+      select_results.form_id = None;
+    }
+  }
+
+
+  // UPDATE THE REST
+  select_results.multiple = select.multiple;
+  select_results.size = select.size;
+  select_results.validation = select.validation;
+  select_results.step = select.step;
+
+
+  update_document::<Select>(&select_results, id, "selects", client).await
+
 }
