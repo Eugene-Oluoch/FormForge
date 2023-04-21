@@ -1,4 +1,4 @@
-use mongodb::{Client, bson::{doc, to_bson}};
+use mongodb::{Client, bson::{doc}};
 use rocket::serde::json::Json;
 
 use crate::{
@@ -11,7 +11,8 @@ utils::{
   ReturnId, 
   ReturnError,
   ReturnMessage,
-  ReturnErrors
+  ReturnErrors,
+  update_document
 },
 db::{
   get_by_id,
@@ -103,16 +104,18 @@ pub async fn update_add_to_select(id:&str,select_id:&str,client:&Client){
 }
 
 
-pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
 
+// TO BE OPTIMIZED VALIDATE REQUIRED FIELD
+pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a Client,) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
+  // TODO VALIDATE IF OPTION EXISTS
   let option = get_by_id::<OptionSelect>(client, "options", id).await.expect("failed").unwrap();
 
   // UPDATES UPDATE AT
   data.update();
   data._id = option._id;
   data.created_at = option.created_at;
+  data.archive = option.archive;
 
-  // TODO HANDLE WHEN SELECT ID CHANGES
 
   if let (Some(s_id),Some(s_id2)) = (&option.select_id,&data.select_id){
     if s_id != s_id2{
@@ -153,12 +156,7 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
     }
   }
 
-  let bson = to_bson(&data).unwrap();
-  let update_query = doc! {"$set":bson.as_document().unwrap().to_owned()};
-  let results = update_one::<OptionSelect>(client, "options", update_query, id).await;
-  match &results {
-    Ok(_) => Ok(Json(ReturnMessage::new("Updated successfully 🙂"))),
-    Err(_) => Err(Json(ReturnErrors::new(["Failed to update 🙁".to_string()].to_vec())))
-  }
+  update_document::<OptionSelect>(&data, id, "options", client).await
+  
 
 }

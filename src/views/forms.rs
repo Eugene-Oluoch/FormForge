@@ -1,14 +1,14 @@
 use std::{thread, sync::{Arc}};
 
 use mongodb::{Client, bson::{from_bson, self, doc}};
-use rocket::serde::json::Json;
+use rocket::{serde::json::Json};
 
 use crate::{
   db::{
     get_all,
     insert_doc,
     update_many,
-    update_one
+    update_one, get_by_id
   },
   models::{
     form::{Form,FormReceive}, 
@@ -21,7 +21,8 @@ use crate::{
     ReturnId,
     trim_quotes, 
     ReturnErrors,
-    ReturnError
+    ReturnError,
+    update_document
   },
   repository::{
     map
@@ -132,6 +133,26 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
 
   Json(ReturnId::new(&form_id.to_string()))
 }
+
+pub async fn update_form_view<'a>(id:&str,form:FormReceive,client:&Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnErrors>>{
+
+  // VALIDATE IF FORM EXISTS
+  let mut form_results = get_by_id::<Form>(client, "forms", &id).await.expect("Failed").unwrap();
+
+  // UPDATED AT UPDATE
+  let _ = &mut form_results.update();
+
+
+  // UPDATE FIELD VALIDATE REQUIRED FIELD
+  form_results.name = form.name;
+  form_results.steps = form.steps;
+
+
+  update_document::<Form>(&form_results, id, "forms", client).await
+
+}
+
+
 
 pub async fn delete_form_view<'a>(id:&'a str,client:&'a Client) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
 
