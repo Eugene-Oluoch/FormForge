@@ -39,16 +39,7 @@ pub async fn update_option<'a>(id:&'a str,data:Json<OptionSelect>,client:&'a Sta
   }
 }
 
-
-
 #[delete("/<id>")]
 pub async fn delete_option<'a>(id:&str,client:&State<StateCustom>) -> Result<Json<ReturnMessage<'a>>,Json<ReturnError<'a>>>{
   delete_option_view(id, &client.client).await
 }
-
-
-
-// DELETE OPTION FROM ALL SELECTS
-// let match_selects = doc! {"options":id};
-// let delete =doc! {"$pullAll":{"options":[id]}};
-// update_many::<Select>(&client.client, "crabs_test", "selects", match_selects, delete, id).await;
