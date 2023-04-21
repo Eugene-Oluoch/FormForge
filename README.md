@@ -1,11 +1,4 @@
 # FormForge
-
-FormForge is an api for creating and managing dynamic form fields, built in rust
-
-Still Under Construction 🚧
-
-
-# FormForge
 FormForge is an api for creating and managing dynamic form fields, built in rust
 
 ---
