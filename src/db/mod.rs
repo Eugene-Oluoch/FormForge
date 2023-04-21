@@ -1,4 +1,4 @@
-use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult, UpdateResult}, bson::{doc, Bson, Document}, error::Error};
+use mongodb::{Client, Collection, results::{InsertOneResult, DeleteResult, UpdateResult}, bson::{doc,Document}, error::Error};
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
 use dotenv::dotenv;
