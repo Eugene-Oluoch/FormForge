@@ -20,8 +20,8 @@ use urls::{
   inputs::{get_input,add_input,update_input,delete_input}
 };
 
-// bson::from_bson(bson::Bson::Document(doc)).unwrap() -> To convert mongo Document to struct
 // NOTE -> You might encounter String types but am planning to convert to &str
+
 
 #[macro_use]
 extern crate rocket;

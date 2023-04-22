@@ -42,6 +42,8 @@ impl Input  {
       _id:None
     }
   }
+
+
   pub fn map_type(&mut self){
     let types = vec![
       "color",
@@ -63,6 +65,9 @@ impl Input  {
       if types.contains(&t.to_lowercase().as_str()) == false{
         self.type_identifier = Some("text".to_string())
       }
+    }
+    if let Some(val) = &mut self.validation{
+      val.filter_validation(self.type_identifier.as_ref().unwrap());
     }
   }
 
