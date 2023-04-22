@@ -110,6 +110,14 @@ pub async fn update_option_view<'a>(id:&'a str,mut data:OptionSelect,client:&'a 
   // TODO VALIDATE IF OPTION EXISTS
   let option = get_by_id::<OptionSelect>(client, "options", id).await.expect("failed").unwrap();
 
+
+  // CHECK IF OPTION IS ARCHIVED
+  if let Some(val) = &option.archive{
+    if *val == true{
+      return Err(Json(ReturnErrors::new(["Option with the provided  id doesn't exists 🙁".to_string()].to_vec())));
+    }
+  }
+
   // UPDATES UPDATE AT
   data.update();
   data._id = option._id;

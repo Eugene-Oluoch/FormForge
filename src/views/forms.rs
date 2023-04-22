@@ -139,6 +139,13 @@ pub async fn update_form_view<'a>(id:&str,form:FormReceive,client:&Client) -> Re
   // VALIDATE IF FORM EXISTS
   let mut form_results = get_by_id::<Form>(client, "forms", &id).await.expect("Failed").unwrap();
 
+  // CHECK IF FORM IS ARCHIVED
+  if let Some(val) = &form_results.archive{
+    if *val == true{
+      return Err(Json(ReturnErrors::new(["Form with the provided id doesn't exists 🙁".to_string()].to_vec())));
+    }
+  }
+
   // UPDATED AT UPDATE
   let _ = &mut form_results.update();
 

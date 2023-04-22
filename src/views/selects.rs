@@ -19,6 +19,7 @@ use crate::views::{
   options::{add_option_helper}
 };
 
+
 pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectReceive>,Json<ReturnError>>{
   let document = get_all::<Select>(client, "selects", map("select",id.as_str())).await;
   if let Ok(doc) = document{
@@ -103,6 +104,12 @@ pub async fn update_select_view<'a>(id:&'a str,select:SelectReceive,client:&'a C
   // TODO VALIDATE SELECT EXISTS
   let mut select_results:Select = get_by_id::<Select>(client, "selects", &id).await.expect("Failed").unwrap();
 
+  // CHECK IF SELECT IS ARCHIVED
+  if let Some(val) = &select_results.archive{
+    if *val == true{
+      return Err(Json(ReturnErrors::new(["Select with the provided id doesn't exists 🙁".to_string()].to_vec())));
+    }
+  }
 
   // UPATED UPDATED AT
   let _ = &mut select_results.update();

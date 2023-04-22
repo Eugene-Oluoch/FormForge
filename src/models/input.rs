@@ -75,7 +75,7 @@ impl Input  {
 
 impl ResetDefaults for Input{
   fn reset(&mut self) {
-      self.archive = None;
+      self.archive = Some(false);
       self.updated_at = Some(generate_current_time());
       self.created_at = Some(generate_current_time());
       self._id = Some(Uuid::new_v4().to_string());

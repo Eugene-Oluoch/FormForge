@@ -22,7 +22,12 @@ use urls::{
 
 // NOTE -> You might encounter String types but am planning to convert to &str
 
-
+/* 
+TODO
+-> Ignore archived children for select and form
+-> Create endpoint to validate data and pass it to the required service | Update endpoint
+-> 
+*/
 #[macro_use]
 extern crate rocket;
 #[rocket::main]

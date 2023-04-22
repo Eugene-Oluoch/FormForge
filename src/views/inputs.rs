@@ -96,6 +96,13 @@ pub async fn update_input_view<'a>(id:&str,mut input:Input,client:&Client) -> Re
   // VALIDATE IF INPUT EXIST
   let mut input_results = get_by_id::<Input>(client, "inputs", id).await.expect("failed").unwrap();
 
+  // CHECK IF INPUT IS ARCHIVED
+  if let Some(val) = &input_results.archive{
+    if *val == true{
+      return Err(Json(ReturnErrors::new(["Input with the provided id doesn't exists 🙁".to_string()].to_vec())));
+    }
+  }
+
   // UPDATE FIELDS VALIDATE REQUIRED FIELD
   let _ = &mut input_results.update();
 
