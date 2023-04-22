@@ -22,6 +22,12 @@ First clone the repository and switch to the new directory:
 > cd FormForge
 ```
 
+Create a .env file and add
+```
+MONGO_URI=
+MONGO_DB_NAME=
+```
+
 Install and Run development server:
 
 ```sh
