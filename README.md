@@ -1,5 +1,5 @@
 # FormForge
-FormForge is an api for creating and managing dynamic form fields, built in rust
+FormForge is an api for creating and managing dynamic form fields
 
 ---
 ___
@@ -22,13 +22,7 @@ First clone the repository and switch to the new directory:
 > cd FormForge
 ```
 
-Install project dependencies:
-
-```sh
-> cargo update
-```
-
-Run development server:
+Install and Run development server:
 
 ```sh
 > cargo run
