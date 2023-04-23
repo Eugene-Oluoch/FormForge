@@ -9,7 +9,7 @@ pub fn map(name:&str, id:&str) -> Vec<Document>{
 fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
 
   // FORM PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
-  // TODO FIX PIPELINE NOT RETURNING SELECTS WHICH HAVE ONE OPTION SET ARCHIVE SET TO TRUE
+  // TODO FIX PIPELINE NOT RETURNING SELECTS WHICH HAVE ONE OPTION SET TO TRUE
   let form_pipeline = vec![
     doc! {
         "$match": {
