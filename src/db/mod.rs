@@ -6,6 +6,9 @@ use std::{env::var};
 
 
 async fn create_collection<T>(client:&Client, collection:&str) -> Collection<T>{
+
+  // TODO CREATE A DEFAULT DB_NAME IF ONE WASN'T SUPPLIED
+
   let db_name = var("MONGO_DB_NAME").expect("MONGO_DB_NAME must be set");
   client.database(db_name.as_str()).collection(collection)
 }
