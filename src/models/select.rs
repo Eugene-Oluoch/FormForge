@@ -13,7 +13,7 @@ pub struct Select{
   pub size:Option<String>,
   pub options:Vec<String>,
   pub label:Option<String>,
-  pub validation:Option<String>,
+  pub required:Option<bool>,
   pub step:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
@@ -28,7 +28,7 @@ pub struct SelectReceive{
   pub size:Option<String>,
   pub options:Option<Vec<OptionSelect>>,
   pub label:Option<String>,
-  pub validation:Option<String>,
+  pub required:Option<bool>,
   pub step:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
@@ -40,7 +40,8 @@ impl ResetDefaults for SelectReceive{
     self.updated_at = Some(generate_current_time());
     self.created_at = Some(generate_current_time());
     self.archive = Some(false);
-    self._id = Some(Uuid::new_v4().to_string())
+    self._id = Some(Uuid::new_v4().to_string());
+    self.required = Some(false);
   }
   fn update(&mut self) {
       self.updated_at = Some(generate_current_time())
@@ -68,7 +69,7 @@ impl SelectReceive{
       size: self.size.clone(), 
       options: Vec::new(),
       label:None,
-      validation: self.validation.clone(), 
+      required: self.required.clone(), 
       step: self.step.clone(), 
       archive: self.archive.clone(), 
       updated_at: self.updated_at.clone(), 
@@ -88,7 +89,7 @@ impl Select {
       size:None,
       options: vec![],
       label:None,
-      validation:None,
+      required:None,
       step:None,
       _id:None,
       form_id:None
@@ -119,8 +120,8 @@ impl From<Select> for Bson {
       doc.insert("size", size);
     }
 
-    if let Some(validation) = option.validation{
-      doc.insert("validation",validation);
+    if let Some(req) = option.required{
+      doc.insert("required",req);
     }
 
     Bson::Document(doc)
