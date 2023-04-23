@@ -1,8 +1,9 @@
-use std::{collections::{HashMap}, sync::{Arc, Mutex}, thread::{self, JoinHandle}, cell::RefCell};
+use std::{collections::{HashMap}, sync::{Arc, Mutex}, cell::RefCell};
 
 use mongodb::Client;
 use rocket::serde::DeserializeOwned;
 use serde::Serialize;
+use tokio::task::JoinHandle;
 
 use crate::{
   models::{
@@ -51,31 +52,31 @@ pub async fn validate_data_view(valid:Validate,client:&Client){
 
     let (errors_clone,errors_clone2) = (Arc::clone(&errors),Arc::clone(&errors));
 
-    //TO HELP JOIN THREADS
-    let mut threads:Vec<JoinHandle<()>> = Vec::new();
 
-    let input_valid = thread::spawn({
-      move || {
-        let _ = tokio::runtime::Runtime::new()
-          .unwrap()
-          .block_on(validate_id_for_form::<Input>(errors_clone,user_inputs_ids, form_inputs_ids,"inputs",&*client_clone));
-      }
+    let input_valid = tokio::spawn(
+      async move  {
+        let _ = validate_id_for_form::<Input>(
+          errors_clone,
+          user_inputs_ids,
+          form_inputs_ids,
+          "inputs",
+          &*client_clone,
+        )
+        .await;
     });
 
-    let select_valid = thread::spawn({
-      move || {
-        let _ = tokio::runtime::Runtime::new()
-          .unwrap()
-          .block_on(validate_id_for_form::<Select>(errors_clone2,user_selects_ids, form_selects_ids,"selects",&*client_clone2));
-      }
+    let select_valid = tokio::spawn(async move {
+      let _ = validate_id_for_form::<Select>(
+          errors_clone2,
+          user_selects_ids,
+          form_selects_ids,
+          "selects",
+          &*client_clone2,
+      )
+      .await;
     });
 
-    threads.push(input_valid);
-    threads.push(select_valid);
-
-    for t in threads{
-      t.join();
-    }
+    let _ = tokio::join!(select_valid, input_valid);
 
     println!("{:?}",errors);
 
