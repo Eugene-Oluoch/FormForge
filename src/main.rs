@@ -17,17 +17,11 @@ use urls::{
   options::{get_option_by_id,add_option,delete_option, update_option},
   selects::{get_select_by_id,add_select,update_select,delete_select},
   forms::{get_form,add_form,update_form,delete_form},
-  inputs::{get_input,add_input,update_input,delete_input}
+  inputs::{get_input,add_input,update_input,delete_input},
+  validate::{validate_data}
 };
-
 // NOTE -> You might encounter String types but am planning to convert to &str
-
-/* 
-TODO
--> Ignore archived children for select and form
--> Create endpoint to validate data and pass it to the required service | Update endpoint
--> 
-*/
+// NOTE -> Code has alot of unhandled Result enum Err -> To Be Fixed
 #[macro_use]
 extern crate rocket;
 #[rocket::main]
@@ -36,6 +30,7 @@ async fn main() {
     let _ = rocket::build()
       .manage(StateCustom::new(client))
       .mount("/", routes![welcome])
+      .mount("/validate",routes![validate_data])
       .mount("/options/", routes![get_option_by_id,add_option,update_option,delete_option])
       .mount("/selects/",routes![get_select_by_id,add_select,update_select,delete_select])
       .mount("/inputs", routes![get_input,add_input,update_input,delete_input])
