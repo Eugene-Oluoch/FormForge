@@ -42,7 +42,13 @@ use crate::{
 
 
 
-pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormReceive>,Json<ReturnMessage<'a>>>{
+pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormReceive>,Json<ReturnErrors>>{
+  // REASON FOR DOUBLE QUERY IS THAT AGGREATE MONGO QUERY THROW ERROR IF ID DOESN'T MATCH 
+  let validate_if_it_exists = get_by_id::<Form>(client, "forms", &id).await.expect("Failed");
+  if validate_if_it_exists.is_none(){
+    return Err(Json(ReturnErrors::new(["Form with the given id doesn't exist 🙁".to_string()].to_vec())));
+  }
+
   let results = get_all::<Form>(client,"forms", map("form",id.as_str())).await;
   
   if let Ok(result) = results{
@@ -57,13 +63,13 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
     }
 
     if final_result.archive == Some(true){
-      Err(Json(ReturnMessage::new("Failed to get the form 🙁"))) 
+      Err(Json(ReturnErrors::new(["Failed to get the form 🙁".to_string()].to_vec()))) 
     }else{
       Ok(Json(final_result))
     }
 
   } else {
-    Err(Json(ReturnMessage::new("Failed to get the form 🙁")))
+    Err(Json(ReturnErrors::new(["Failed to get the form 🙁".to_string()].to_vec())))
   }
 }
 

@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[get("/<id>")]
-pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceive>,Json<ReturnMessage<'a>>>{
+pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceive>,Json<ReturnErrors>>{
   get_form_view(id, &client.client).await
 }
 

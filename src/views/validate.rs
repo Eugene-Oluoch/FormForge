@@ -24,9 +24,8 @@ where T:Serialize
 
   for id in user.keys(){
     if form.contains(id){
-      println!("{:?}",id);
       // TODO FETCH THE APPROPRIATE IDS AND VALIDATE THEM
-      println!("{:?}",tokio::join!(get_by_id::<T>(client, collection, id)));
+      let field = tokio::join!(get_by_id::<T>(client, collection, id)).0.expect("Failed").unwrap();
     }else{
       errors.as_ref().lock().expect("Failed").borrow_mut().push(id.clone());
     }
