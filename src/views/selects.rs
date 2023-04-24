@@ -21,6 +21,13 @@ use crate::views::{
 
 
 pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectReceive>,Json<ReturnError>>{
+  // REASON FOR DOUBLE QUERY IS THAT AGGREATE MONGO QUERY THROW ERROR IF ID DOESN'T MATCH 
+  let validate_if_it_exists = get_by_id::<Select>(client, "selects", &id).await.expect("Failed");
+  if validate_if_it_exists.is_none(){
+    return Err(Json(ReturnError::new("Select with the given id doesn't exist 🙁")));
+  }
+
+
   let document = get_all::<Select>(client, "selects", map("select",id.as_str())).await;
   if let Ok(doc) = document{
     let results:SelectReceive = from_bson(bson::Bson::Document(doc)).expect("Failed here");
