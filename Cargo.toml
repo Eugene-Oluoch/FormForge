@@ -1,7 +1,14 @@
 [package]
-name = "hello"
+name = "form_forge"
 version = "0.1.0"
 edition = "2021"
+authors = [
+    "Eugene Mark <eugenemarkke@gmail.com>"
+]
+description = "FormForge for creating dynamic form fields"
+repository = "https://github.com/Eugene-Oluoch/FormForge"
+readme = "README.md"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
