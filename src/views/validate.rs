@@ -1,9 +1,6 @@
 use std::{collections::{HashMap}, sync::{Arc, Mutex}, cell::RefCell};
 
 use mongodb::Client;
-use rocket::serde::DeserializeOwned;
-use serde::Serialize;
-use tokio::task::JoinHandle;
 
 use crate::{
   models::{
@@ -14,18 +11,25 @@ use crate::{
   }, db::get_by_id
 };
 
-pub async fn validate_id_for_form<T>(errors:Arc<Mutex<RefCell<Vec<String>>>>,user:Arc<HashMap<String,String>>,form:Arc<Vec<String>>,collection:&str,client:&Client)
-where T:Serialize 
-+ std::fmt::Debug 
-+ DeserializeOwned 
-+ for<'de> serde::Deserialize<'de> 
-+ Unpin + Send + Sync
-{
+pub enum Collection{
+  Selects,
+  Inputs
+}
+
+pub async fn validate_id_for_form(errors:Arc<Mutex<RefCell<Vec<String>>>>,user:Arc<HashMap<String,String>>,form:Arc<Vec<String>>,collection:Collection,client:&Client){
 
   for id in user.keys(){
     if form.contains(id){
-      // TODO FETCH THE APPROPRIATE IDS AND VALIDATE THEM
-      let field = tokio::join!(get_by_id::<T>(client, collection, id)).0.expect("Failed").unwrap();
+
+      match collection{
+        Collection::Inputs => {
+          let field = tokio::join!(get_by_id::<Input>(client, "inputs", id)).0.expect("Failed").unwrap();
+        },
+        Collection::Selects => {
+          let field = tokio::join!(get_by_id::<Select>(client, "selects", id)).0.expect("Failed").unwrap();
+          
+        }
+      }
     }else{
       errors.as_ref().lock().expect("Failed").borrow_mut().push(id.clone());
     }
@@ -54,22 +58,22 @@ pub async fn validate_data_view(valid:Validate,client:&Client){
 
     let input_valid = tokio::spawn(
       async move  {
-        let _ = validate_id_for_form::<Input>(
+        let _ = validate_id_for_form(
           errors_clone,
           user_inputs_ids,
           form_inputs_ids,
-          "inputs",
+          Collection::Inputs,
           &*client_clone,
         )
         .await;
     });
 
     let select_valid = tokio::spawn(async move {
-      let _ = validate_id_for_form::<Select>(
+      let _ = validate_id_for_form(
           errors_clone2,
           user_selects_ids,
           form_selects_ids,
-          "selects",
+          Collection::Selects,
           &*client_clone2,
       )
       .await;
