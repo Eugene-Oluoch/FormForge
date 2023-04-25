@@ -8,7 +8,6 @@ use crate::utils::{generate_current_time};
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct OptionSelect{
   pub _id: Option<String>,
-  pub name:Option<String>,
   pub selected:Option<bool>,
   pub value:Option<String>,
   pub select_id:Option<String>,
@@ -26,7 +25,6 @@ impl OptionSelect {
       archive:None,
       select_id:None,
       selected:Some(false),
-      name:None,
       value:None,
       _id:None
     }
@@ -35,7 +33,6 @@ impl OptionSelect {
   pub fn to_document(&self) -> Document {
     doc! {
         "selected": self.selected,
-        "name": self.name.as_deref().unwrap_or("").to_string(),
         "value": self.value.as_deref().unwrap_or("").to_string(),
         "_id": self._id.clone().unwrap_or_else(|| String::new()),
     }
@@ -59,9 +56,6 @@ impl From<OptionSelect> for Bson {
   fn from(option: OptionSelect) -> Self {
       let mut doc = Document::new();
       doc.insert("selected", option.selected);
-      if let Some(name) = option.name {
-          doc.insert("name", name);
-      }
       if let Some(value) = option.value {
           doc.insert("value", value);
       }

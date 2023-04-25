@@ -41,7 +41,9 @@ impl ResetDefaults for SelectReceive{
     self.created_at = Some(generate_current_time());
     self.archive = Some(false);
     self._id = Some(Uuid::new_v4().to_string());
-    self.required = Some(false);
+    if self.required.is_none(){
+      self.required = Some(false)
+    }
   }
   fn update(&mut self) {
       self.updated_at = Some(generate_current_time())
@@ -59,6 +61,7 @@ impl ResetDefaults for Select{
       self.updated_at = Some(generate_current_time())
   }
 }
+
 
 impl SelectReceive{
   pub fn convert(&self) -> Select {

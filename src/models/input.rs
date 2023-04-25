@@ -81,6 +81,9 @@ impl ResetDefaults for Input{
       self.updated_at = Some(generate_current_time());
       self.created_at = Some(generate_current_time());
       self._id = Some(Uuid::new_v4().to_string());
+      if self.required.is_none(){
+        self.required = Some(false)
+      }
   }
   fn update(&mut self) {
       self.updated_at = Some(generate_current_time())
