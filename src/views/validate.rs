@@ -16,6 +16,19 @@ pub enum Collection{
   Inputs
 }
 
+pub fn validate_required_field(required:&Option<bool>,user:&Arc<HashMap<String,String>>,id:&str){
+  if let Some(val) = required{
+    match val {
+      &true => {
+        if &user.get(id).unwrap().len() < &1{
+          println!("Supplied data doesn't meet the requirements");
+        }
+      },
+      _=> println!("Do nothing")
+    }
+  }
+}
+
 pub async fn validate_id_for_form(errors:Arc<Mutex<RefCell<Vec<String>>>>,user:Arc<HashMap<String,String>>,form:Arc<Vec<String>>,collection:Collection,client:&Client){
 
   for id in user.keys(){
@@ -24,10 +37,17 @@ pub async fn validate_id_for_form(errors:Arc<Mutex<RefCell<Vec<String>>>>,user:A
       match collection{
         Collection::Inputs => {
           let field = tokio::join!(get_by_id::<Input>(client, "inputs", id)).0.expect("Failed").unwrap();
+
+          // TODO VALIDATION FOR THE INPUT
+
+          // REQUIRED FIELD VALIDATION
+          validate_required_field(&field.required,&user,&id);
+
         },
         Collection::Selects => {
           let field = tokio::join!(get_by_id::<Select>(client, "selects", id)).0.expect("Failed").unwrap();
-          
+          // REQUIRED FIELD VALIDATION
+          validate_required_field(&field.required,&user,&id);
         }
       }
     }else{
