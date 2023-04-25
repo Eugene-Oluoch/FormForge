@@ -128,6 +128,7 @@ pub async fn update_input_view<'a>(id:&str,mut input:Input,client:&Client) -> Re
   input_results.disabled = input.disabled;
   input_results.placeholder = input.placeholder;
   input_results.label = input.label;
+  input_results.required = if input.required.is_some() {input.required} else {input_results.required};
   input_results.name = input.name;
   input_results.validation = input.validation;
   input_results.step = input.step;

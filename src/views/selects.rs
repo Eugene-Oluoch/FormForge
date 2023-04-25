@@ -142,7 +142,7 @@ pub async fn update_select_view<'a>(id:&'a str,select:SelectReceive,client:&'a C
   // UPDATE THE REST
   select_results.multiple = select.multiple;
   select_results.size = select.size;
-  select_results.required = select.required;
+  select_results.required = if select.required.is_some() {select.required} else {select_results.required};
   select_results.step = select.step;
 
 
