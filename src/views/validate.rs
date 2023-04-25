@@ -16,6 +16,18 @@ pub enum Collection{
   Inputs
 }
 
+
+// CHECK IF FIELD IS ARCHIVED
+pub fn validate_archived_fields(archived:&Option<bool>){
+  if let Some(val) = archived{
+    match val {
+      &true => println!("Document doesn't exists"),
+      _=>println!("Do nothing")
+    }
+  }
+}
+
+// VALIDATE BASED ON THE REQUIRED FIELD
 pub fn validate_required_field(required:&Option<bool>,user:&Arc<HashMap<String,String>>,id:&str){
   if let Some(val) = required{
     match val {
@@ -39,15 +51,23 @@ pub async fn validate_id_for_form(errors:Arc<Mutex<RefCell<Vec<String>>>>,user:A
           let field = tokio::join!(get_by_id::<Input>(client, "inputs", id)).0.expect("Failed").unwrap();
 
           // TODO VALIDATION FOR THE INPUT
-
+          validate_archived_fields(&field.archive);
           // REQUIRED FIELD VALIDATION
           validate_required_field(&field.required,&user,&id);
+
+          // VALIDATE BASED ON THE DATA SUPPLIED
 
         },
         Collection::Selects => {
           let field = tokio::join!(get_by_id::<Select>(client, "selects", id)).0.expect("Failed").unwrap();
+          // CHECK IF FIELD IS ARCHIVED
+          validate_archived_fields(&field.archive);
           // REQUIRED FIELD VALIDATION
           validate_required_field(&field.required,&user,&id);
+
+          // VALIDATE IT THE SUPPLIED DATA IS PART OF OPTIONS
+          // VALIDATE BASED ON THE VALIDATION PROVIDED
+
         }
       }
     }else{
