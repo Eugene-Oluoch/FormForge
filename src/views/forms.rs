@@ -1,4 +1,4 @@
-use std::{thread, sync::{Arc}};
+use std::{sync::{Arc}};
 
 use mongodb::{Client, bson::{from_bson, self, doc}};
 use rocket::{serde::json::Json};
@@ -104,36 +104,31 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   let (client_clone,client_clone2) = (Arc::new(client.clone()),Arc::new(client.clone()));
   
   // THREADS TO HANDLE SELECTS AND OPTION CREATION
-  let selects_creation = thread::spawn({
-      move || {
-        if let Some(selects) = &mut form.selects{
-          for select in selects.iter_mut() {
-              select.form_id = Some(form_id_clone.to_string());
-              let _ = tokio::runtime::Runtime::new()
-                  .unwrap()
-                  .block_on(add_select_helper(select, &*client_clone));
-          }
-        }
-      }
-    });
-  
-  let inputs_creation = thread::spawn({
-    move || {
-      if let Some(inputs) = &mut form.inputs{
-        for input in inputs.iter_mut() {
-            input.form_id = Some(form_id_clone2.to_string());
-            let _ = tokio::runtime::Runtime::new()
-                .unwrap()
-                .block_on(add_input_helper(input, &*client_clone2));
+  let selects_creation = tokio::spawn(
+    async move {
+      if let Some(selects) = &mut form.selects{
+        for select in selects.iter_mut() {
+            select.form_id = Some(form_id_clone.to_string());
+            let _ = add_select_helper(select, &*client_clone).await;
         }
       }
     }
-  });
+  );
+
+  let inputs_creation = tokio::spawn(
+    async move  {
+      if let Some(inputs) = &mut form.inputs{
+        for input in inputs.iter_mut() {
+            input.form_id = Some(form_id_clone2.to_string());
+            let _ = add_input_helper(input, &*client_clone2).await;
+        }
+      }
+    }
+  );
   
-  let threads = vec![selects_creation,inputs_creation];
-  for t in threads.into_iter(){
-    let _ = t.join();
-  }
+  
+  let _ = tokio::join!(selects_creation,inputs_creation);
+
   
 
 
