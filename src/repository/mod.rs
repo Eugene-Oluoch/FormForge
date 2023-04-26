@@ -10,6 +10,7 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
 
   // FORM PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   // TODO FIX PIPELINE NOT RETURNING SELECTS WHICH HAVE ONE OPTION SET TO TRUE
+
   let form_pipeline = vec![
     doc! {
         "$match": {
@@ -76,8 +77,32 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
                 "$push": "$selects"
             }
         }
+    },
+    doc! {
+        "$addFields": {
+            "checkboxes": {
+                "$filter": {
+                    "input": "$inputs",
+                    "cond": {
+                        "$eq": ["$$this.type_identifier", "checkbox"]
+                    }
+                }
+            }
+        }
+    },
+    doc! {
+        "$addFields": {
+            "radios": {
+                "$filter": {
+                    "input": "$inputs",
+                    "cond": {
+                        "$eq": ["$$this.type_identifier", "radio"]
+                    }
+                }
+            }
+        }
     }
-  ];
+];
 
   // SELECT PIPELINE FOR FETCHING FORM AND ALL REFERENCE RELATIONSHIP
   let select_pipeline = vec![
