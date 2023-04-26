@@ -1,8 +1,4 @@
 use serde::{Serialize, Deserialize};
-
-/* 
-Chechbox and Radio to be handled differently
-*/
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Validate{
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,7 +47,14 @@ impl Validate{
         self.pattern = None;
         self
       },
-      _=>todo!()
+      _=> {
+        self.min = None;
+        self.max = None;
+        self.minlength = None;
+        self.maxlength = None;
+        self.pattern = None;
+        self
+      }
     }
   }
 
