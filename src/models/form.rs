@@ -25,6 +25,8 @@ pub struct FormReceive {
   pub inputs: Option<Vec<Input>>,
   pub selects: Option<Vec<SelectReceive>>,
   pub steps:Option<i32>,
+  pub checkboxes:Option<Vec<Input>>,
+  pub radios:Option<Vec<Input>>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
   pub created_at: Option<i64>
