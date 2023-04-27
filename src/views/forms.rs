@@ -2,6 +2,7 @@ use std::{sync::{Arc}};
 
 use mongodb::{Client, bson::{from_bson, self, doc}};
 use rocket::{serde::json::Json};
+use tokio::{task::JoinHandle};
 
 use crate::{
   db::{
@@ -29,10 +30,10 @@ use crate::{
   },
   views::{
     selects::{
-      add_select_helper
+      add_select_alone
     },
     inputs::{
-      add_input_helper
+      add_input_alone
     }
   }
 };
@@ -88,7 +89,7 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   let mut form = data.0;
 
   // GENERATE A RANDOM ID FOR FORM
-  let mut form2 = form.convert(Some(Vec::new()),Some(Vec::new()));
+  let mut form2 = form.convert(Some(Vec::new()),Some(Vec::new()),None);
   let _ = &mut form2.reset();
 
 
@@ -103,31 +104,45 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   // DB_CONNECTION REFERENCE CLONE TO PASS TO THREADS
   let (client_clone,client_clone2) = (Arc::new(client.clone()),Arc::new(client.clone()));
   
+
   // THREADS TO HANDLE SELECTS AND OPTION CREATION
-  let selects_creation = tokio::spawn(
+  let selects_creation:JoinHandle<Vec<String>> = tokio::spawn(
     async move {
+      let mut selects_id:Vec<String> = Vec::new();
       if let Some(selects) = &mut form.selects{
         for select in selects.iter_mut() {
             select.form_id = Some(form_id_clone.to_string());
-            let _ = add_select_helper(select, &*client_clone).await;
+            let select_ids = add_select_alone(select, &*client_clone).await;
+            selects_id.push(trim_quotes(&select_ids));
         }
       }
+      selects_id
     }
   );
 
-  let inputs_creation = tokio::spawn(
+  let inputs_creation:JoinHandle<Vec<String>> = tokio::spawn(
     async move  {
+      let mut inputs_id:Vec<String> = Vec::new();
       if let Some(inputs) = &mut form.inputs{
         for input in inputs.iter_mut() {
             input.form_id = Some(form_id_clone2.to_string());
-            let _ = add_input_helper(input, &*client_clone2).await;
+            let input_ids = add_input_alone(input, &*client_clone2).await;
+            inputs_id.push(trim_quotes(&input_ids));
         }
       }
+      inputs_id
     }
   );
+
   
+  let ids_from_threads = tokio::join!(selects_creation,inputs_creation);
   
-  let _ = tokio::join!(selects_creation,inputs_creation);
+  // UPDATE FORM WITH INPUT AND SELECT IDS
+  let document = doc! { 
+    "$push": { "inputs": {"$each": ids_from_threads.0.expect("failed")}, 
+    "selects":{"$each": ids_from_threads.1.expect("failed")} } 
+  };
+  let _ = update_one::<Form>(client,"forms", document, &form_id).await;
 
   
 

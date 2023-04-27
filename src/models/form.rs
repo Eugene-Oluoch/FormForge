@@ -7,6 +7,8 @@ use crate::{models::{
 }, utils::generate_current_time};
 use uuid::Uuid;
 
+use super::textarea::TextArea;
+
 #[derive(Serialize, Deserialize, Debug,PartialEq)]
 pub struct Form {
   pub _id: Option<String>,
@@ -16,13 +18,15 @@ pub struct Form {
   pub steps:Option<i32>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
-  pub created_at: Option<i64>
+  pub created_at: Option<i64>,
+  pub textareas:Option<Vec<String>>
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FormReceive {
   pub _id: Option<String>,
   pub name:Option<String>,
   pub inputs: Option<Vec<Input>>,
+  pub textareas:Option<Vec<TextArea>>,
   pub selects: Option<Vec<SelectReceive>>,
   pub steps:Option<i32>,
   pub checkboxes:Option<Vec<Input>>,
@@ -39,6 +43,7 @@ impl Form{
         updated_at: None,
         archive:None,
         inputs:Some(vec![]),
+        textareas:Some(vec![]),
         steps: None,
         name: Some(String::from("default")),
         selects: Some(vec![]),
@@ -49,12 +54,13 @@ impl Form{
 }
 
 impl FormReceive {
-  pub fn convert(&self,inputs:Option<Vec<String>>,selects:Option<Vec<String>>) -> Form{
+  pub fn convert(&self,inputs:Option<Vec<String>>,selects:Option<Vec<String>>,textareas:Option<Vec<String>>) -> Form{
     Form { 
       _id: None, 
       name: self.name.clone(), 
       inputs, 
-      selects, 
+      selects,
+      textareas,
       steps: self.steps, 
       archive: None, 
       updated_at: None, 
