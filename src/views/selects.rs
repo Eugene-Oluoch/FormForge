@@ -16,7 +16,7 @@ use crate::repository::{
   map
 };
 use crate::views::{
-  options::{add_option_helper}
+  options::{add_option_alone}
 };
 
 
@@ -41,10 +41,29 @@ pub async fn get_select_view(id:String,client:&Client) -> Result<Json<SelectRece
   }
 }
 
-pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Client) -> Result<String,&'a str> {
-    // RESET AND SET ID
-    let _ = &mut select.reset();
+pub async fn add_select_alone<'a>(select:&'a mut SelectReceive,client:&'a Client) -> String{
+  select.reset();
+  let results = trim_quotes(&insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string());
   
+  // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
+  let mut options_ids:Vec<String> = Vec::new();
+  if let Some(options) = &mut select.options{
+    for option in options{
+      option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
+      let option_id = add_option_alone(option, client).await;
+      options_ids.push(trim_quotes(&option_id));
+    }
+  }
+
+  // UPDATE SELECT WITH NEW OPTION IDS
+  let document = doc! { "$push": { "options": {"$each":options_ids} } };
+  let _ = update_one::<Select>(client,"selects", document, &results).await;
+
+  results
+
+}
+
+pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Client) -> Result<String,&'a str> {  
     // VALIDATION FOR FORM ID
     if let Some(form_id) = &select.form_id{
       let form = get_by_id::<Form>(client,"forms", form_id.as_str()).await;
@@ -55,15 +74,7 @@ pub async fn add_select_helper<'a>(select:&'a mut SelectReceive,client:&'a Clien
       }
     }
   
-    let results = insert_doc(client, "selects", &select.convert()).await.expect("Skip").inserted_id.to_string();
-  
-    // CREATE THE OPTIONS -> PLANNING TO MAKE THIS A MULTI-THREAD 
-    if let Some(options) = &mut select.options{
-      for option in options{
-        option.select_id = Some(results.as_str().clone().to_string().trim_matches('"').to_string());
-        let _ = add_option_helper(option, client).await;
-      }
-    }
+    let results = add_select_alone(select, client).await;
   
   
     if let Some(form_id) = &select.form_id{
