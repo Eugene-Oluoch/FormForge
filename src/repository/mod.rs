@@ -19,6 +19,21 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
     },
     doc! {
         "$lookup": {
+            "from": "textareas",
+            "let": { "textareas": "$textareas" },
+            "pipeline": [
+                { "$match": {
+                    "$expr": { "$and": [
+                        { "$in": [ "$_id", "$$textareas" ] },
+                        { "$ne": [ "$archive", true ] }
+                    ]}
+                }}
+            ],
+            "as": "textareas"
+        }
+    },
+    doc! {
+        "$lookup": {
             "from": "inputs",
             "let": { "inputs": "$inputs" },
             "pipeline": [
@@ -72,6 +87,9 @@ fn pipelines (id:&str) -> HashMap<&str,Vec<Document>>{
             "created_at": { "$first": "$created_at" },
             "inputs": {
                 "$first": "$inputs"
+            },
+            "textareas": {
+                "$first": "$textareas"
             },
             "selects": {
                 "$push": "$selects"
