@@ -139,8 +139,8 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   
   // UPDATE FORM WITH INPUT AND SELECT IDS
   let document = doc! { 
-    "$push": { "inputs": {"$each": ids_from_threads.0.expect("failed")}, 
-    "selects":{"$each": ids_from_threads.1.expect("failed")} } 
+    "$push": { "selects": {"$each": ids_from_threads.0.expect("failed")}, 
+    "inputs":{"$each": ids_from_threads.1.expect("failed")} } 
   };
   let _ = update_one::<Form>(client,"forms", document, &form_id).await;
 
