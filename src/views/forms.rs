@@ -34,6 +34,9 @@ use crate::{
     },
     inputs::{
       add_input_alone
+    },
+    textarea::{
+      add_textarea_alone
     }
   }
 };
@@ -89,7 +92,7 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   let mut form = data.0;
 
   // GENERATE A RANDOM ID FOR FORM
-  let mut form2 = form.convert(Some(Vec::new()),Some(Vec::new()),None);
+  let mut form2 = form.convert(Some(Vec::new()),Some(Vec::new()),Some(Vec::new()));
   let _ = &mut form2.reset();
 
 
@@ -98,12 +101,11 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
   let form_id =trim_quotes(&insert_doc(client, "forms", &form2).await.unwrap().inserted_id.to_string());
 
   // FORM_ID REFERNCE CLONE TO PASS TO THREADS
-  let form_id_clone = Arc::new(form_id.clone());
-  let form_id_clone2 = Arc::clone(&form_id_clone);
+  let form_id_selects = Arc::new(form_id.clone());
+  let (form_id_inputs,form_id_textareas) = (Arc::clone(&form_id_selects),Arc::clone(&form_id_selects));
 
   // DB_CONNECTION REFERENCE CLONE TO PASS TO THREADS
-  let (client_clone,client_clone2) = (Arc::new(client.clone()),Arc::new(client.clone()));
-  
+  let (selects_client,inputs_client,textareas_client) = (Arc::new(client.clone()),Arc::new(client.clone()),Arc::new(client.clone()));
 
   // THREADS TO HANDLE SELECTS AND OPTION CREATION
   let selects_creation:JoinHandle<Vec<String>> = tokio::spawn(
@@ -111,8 +113,8 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
       let mut selects_id:Vec<String> = Vec::new();
       if let Some(selects) = &mut form.selects{
         for select in selects.iter_mut() {
-            select.form_id = Some(form_id_clone.to_string());
-            let select_ids = add_select_alone(select, &*client_clone).await;
+            select.form_id = Some(form_id_selects.to_string());
+            let select_ids = add_select_alone(select, &*selects_client).await;
             selects_id.push(trim_quotes(&select_ids));
         }
       }
@@ -125,8 +127,8 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
       let mut inputs_id:Vec<String> = Vec::new();
       if let Some(inputs) = &mut form.inputs{
         for input in inputs.iter_mut() {
-            input.form_id = Some(form_id_clone2.to_string());
-            let input_ids = add_input_alone(input, &*client_clone2).await;
+            input.form_id = Some(form_id_inputs.to_string());
+            let input_ids = add_input_alone(input, &*inputs_client).await;
             inputs_id.push(trim_quotes(&input_ids));
         }
       }
@@ -134,13 +136,31 @@ pub async fn add_form_view(data:Json<FormReceive>,client:&Client) -> Json<Return
     }
   );
 
+
+  let textarea_creation:JoinHandle<Vec<String>> = tokio::spawn(
+    async move  {
+      let mut textareas_id:Vec<String> = Vec::new();
+      if let Some(textareas) = &mut form.textareas{
+        for textarea in textareas.iter_mut() {
+          textarea.form_id = Some(form_id_textareas.to_string());
+            let input_ids = add_textarea_alone(textarea, &*textareas_client).await;
+            textareas_id.push(trim_quotes(&input_ids));
+        }
+      }
+      textareas_id
+    }
+  );
+
   
-  let ids_from_threads = tokio::join!(selects_creation,inputs_creation);
+  let ids_from_threads = tokio::join!(selects_creation,inputs_creation,textarea_creation);
   
   // UPDATE FORM WITH INPUT AND SELECT IDS
   let document = doc! { 
-    "$push": { "selects": {"$each": ids_from_threads.0.expect("failed")}, 
-    "inputs":{"$each": ids_from_threads.1.expect("failed")} } 
+    "$push": { 
+      "selects": {"$each": ids_from_threads.0.expect("failed")}, 
+      "inputs":{"$each": ids_from_threads.1.expect("failed")},
+      "textareas":{"$each": ids_from_threads.2.expect("failed")},
+    } 
   };
   let _ = update_one::<Form>(client,"forms", document, &form_id).await;
 
