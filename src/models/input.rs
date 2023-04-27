@@ -61,7 +61,9 @@ impl Input  {
       "week",
       "file",
       "month",
-      "datetime-local"
+      "datetime-local",
+      "checkbox",
+      "radio"
     ];
     if let Some(t) = &self.type_identifier{
       if types.contains(&t.to_lowercase().as_str()) == false{
