@@ -23,8 +23,8 @@ db::{
 
 
 pub async fn validate(option:&OptionSelect)->Option<ReturnErrors>{
-  if option.name == None{
-    Some(ReturnErrors::new(["Name is required!".to_string()].to_vec()))
+  if option.value == None{
+    Some(ReturnErrors::new(["Value is required!".to_string()].to_vec()))
   }else{
     None
   }
@@ -44,9 +44,15 @@ pub async fn get_option_view<'a>(id:&str,client:&Client) -> Result<Json<OptionSe
   }
 }
 
-pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Result<String,String>{
+pub async fn add_option_alone(option:&mut OptionSelect,client:&Client) -> String{
   // RESET AND ASSIGN ID
   let _ = option.reset();
+  insert_doc(client, "options", &option).await.unwrap().inserted_id.to_string()
+
+}
+
+pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Result<String,String>{
+
 
   // VALIDATE SELECT ID 
   if let Some(select_id) = &option.select_id{
@@ -57,7 +63,7 @@ pub async fn add_option_helper(option:&mut OptionSelect,client:&Client) -> Resul
   }
 
   // ID OF CREATED OPTION
-  let option_id = insert_doc(client, "options", &option).await.unwrap().inserted_id.to_string();
+  let option_id = add_option_alone(option, client).await;
 
   // UPDATE OPTIONS IN THE SELECT
   if let Some(select_id) = &option.select_id{
