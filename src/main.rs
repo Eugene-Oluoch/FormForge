@@ -19,7 +19,7 @@ use urls::{
   forms::{get_form,add_form,update_form,delete_form},
   inputs::{get_input,add_input,update_input,delete_input},
   validate::{validate_data},
-  textarea::{get_textarea_by_id,add_textarea}
+  textarea::{get_textarea_by_id,add_textarea,update_textarea,delete_textarea}
 };
 // NOTE -> You might encounter String types but am planning to convert to &str
 // NOTE -> Code has alot of unhandled Result enum Err -> To Be Fixed
@@ -36,7 +36,7 @@ async fn main() {
       .mount("/selects/",routes![get_select_by_id,add_select,update_select,delete_select])
       .mount("/inputs", routes![get_input,add_input,update_input,delete_input])
       .mount("/forms/",routes![get_form,add_form,update_form,delete_form])
-      .mount("/textareas/",routes![get_textarea_by_id,add_textarea])
+      .mount("/textareas/",routes![get_textarea_by_id,add_textarea,update_textarea,delete_textarea])
       .launch()
       .await;
 }
@@ -45,5 +45,5 @@ async fn main() {
 async fn welcome() -> &'static str{
   "Welcome to FormForge 🙂"
 }
-// CARGO WATCH TO FOR CONTINUOS COMPILATION AND EXECUTION
 // ELIMINATE THE HUSTLE OF PASSING CLIENT FOR ALL DB QUERIES -> CREATE A CONNECTION ONCE FOR ALL THREAD OPERATIONS
+// CONVERT TEXTAREA AND SELECT METHOD TO USE ONE REUSABLE FUNCTION

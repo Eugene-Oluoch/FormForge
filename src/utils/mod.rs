@@ -56,7 +56,7 @@ impl <'a> ReturnError <'a> {
     }
   }
 }
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize,Deserialize,Debug)]
 pub struct ReturnErrors{
   pub errors:Vec<String>
 }
@@ -69,7 +69,7 @@ impl ReturnErrors{
   }
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize,Deserialize,Debug)]
 pub struct ReturnMessage<'a>{
   message:&'a str
 }
