@@ -53,6 +53,11 @@ pub async fn validate(input:&Input) -> ReturnErrors{
 }
 
 pub async fn add_input_alone<'a>(input:&'a mut Input,client:&'a Client) -> String{
+  // FORCE TYPE TO TEXT IF NOT SUPPLIED
+  if input.type_identifier.is_none(){
+    input.type_identifier = Some("text".to_string());
+  }
+  
   let _ = input.reset();
   let _ = input.map_type();
   insert_doc(client,"inputs", &input).await.unwrap().inserted_id.to_string()
