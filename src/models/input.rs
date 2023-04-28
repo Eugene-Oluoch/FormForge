@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::utils::{
   generate_current_time
 };
-
+// VALUE FOR CHECKBOX AND RADIOS
 #[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Input{
   pub _id: Option<String>,
