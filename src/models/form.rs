@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson,Document};
 use crate::{models::{
@@ -36,6 +38,21 @@ pub struct FormReceive {
   pub created_at: Option<i64>
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FormReceiveFinal {
+  pub _id: Option<String>,
+  pub name:Option<String>,
+  pub inputs: Option<Vec<Input>>,
+  pub textareas:Option<Vec<TextArea>>,
+  pub selects: Option<Vec<SelectReceive>>,
+  pub steps:Option<i32>,
+  pub checkboxes:HashMap<String, Vec<Input>>,
+  pub radios:HashMap<String, Vec<Input>>,
+  pub archive:Option<bool>,
+  pub updated_at: Option<i64>,
+  pub created_at: Option<i64>
+}
+
 impl Form{
   pub fn new() -> Self{
     Self {
@@ -65,6 +82,21 @@ impl FormReceive {
       archive: None, 
       updated_at: None, 
       created_at: None }
+  }
+  pub fn to_final(self,inputs:Option<Vec<Input>>,checkboxes:HashMap<String, Vec<Input>>,radios:HashMap<String, Vec<Input>>) -> FormReceiveFinal{
+    FormReceiveFinal { 
+      _id: self._id, 
+      name: self.name, 
+      inputs, 
+      selects:self.selects,
+      textareas:self.textareas,
+      checkboxes,
+      radios,
+      steps: self.steps, 
+      archive: self.archive, 
+      updated_at: self.updated_at, 
+      created_at: self.created_at } 
+
   }
 }
 

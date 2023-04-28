@@ -7,7 +7,7 @@ use crate::utils::{
   generate_current_time
 };
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug,Clone)]
 pub struct Input{
   pub _id: Option<String>,
   pub form_id:Option<String>,

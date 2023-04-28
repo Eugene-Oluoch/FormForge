@@ -1,6 +1,6 @@
 use rocket::State;
 use rocket::serde::json::Json;
-use crate::models::form::{FormReceive};
+use crate::models::form::{FormReceive,FormReceiveFinal};
 use crate::utils::{StateCustom, ReturnMessage, ReturnId, ReturnErrors, ReturnError};
 use crate::{
   views::{
@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[get("/<id>")]
-pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceive>,Json<ReturnErrors>>{
+pub async fn get_form<'a>(id:String,client:&State<StateCustom>) -> Result<Json<FormReceiveFinal>,Json<ReturnErrors>>{
   get_form_view(id, &client.client).await
 }
 

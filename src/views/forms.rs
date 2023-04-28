@@ -1,4 +1,4 @@
-use std::{sync::{Arc}};
+use std::{sync::{Arc}, collections::HashMap, vec};
 
 use mongodb::{Client, bson::{from_bson, self, doc}};
 use rocket::{serde::json::Json};
@@ -12,7 +12,7 @@ use crate::{
     update_one, get_by_id
   },
   models::{
-    form::{Form,FormReceive}, 
+    form::{Form,FormReceive,FormReceiveFinal}, 
     traits::ResetDefaults, 
     select::{SelectReceive, Select},
     input::{Input}
@@ -43,10 +43,16 @@ use crate::{
 
 
 
+pub fn push_to_hashmap(type_:&str,hashmap_:&mut HashMap<String, Vec<Input>>,inputs:&Input){
+    if hashmap_.contains_key(type_){
+      hashmap_.get_mut(type_).unwrap().push(inputs.clone());
+    }else{
+      hashmap_.insert(type_.to_string(), vec![inputs.clone()]);
+    } 
+}
 
 
-
-pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormReceive>,Json<ReturnErrors>>{
+pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormReceiveFinal>,Json<ReturnErrors>>{
   // REASON FOR DOUBLE QUERY IS THAT AGGREATE MONGO QUERY THROW ERROR IF ID DOESN'T MATCH 
   let validate_if_it_exists = get_by_id::<Form>(client, "forms", &id).await.expect("Failed");
   if validate_if_it_exists.is_none(){
@@ -69,7 +75,28 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
     if final_result.archive == Some(true){
       Err(Json(ReturnErrors::new(["Failed to get the form 🙁".to_string()].to_vec()))) 
     }else{
-      Ok(Json(final_result))
+
+
+      // GROUP CHECKBOX AND RADIO THAT HAVE SIMILIAR NAMES
+      let mut checkboxes_groups:HashMap<String, Vec<Input>> = HashMap::new();
+      let mut radios_groups:HashMap<String,Vec<Input>> = HashMap::new();
+      let mut filtered_inputs = Vec::new();
+      
+      for inputs in final_result.inputs.as_ref().unwrap(){
+        if inputs.type_identifier == Some("checkbox".to_string()){
+          if let Some(n) = &inputs.name{
+            push_to_hashmap(n.as_str(),&mut checkboxes_groups,inputs);
+          }
+        }else if inputs.type_identifier == Some("radio".to_string()){
+          if let Some(n) = &inputs.name{
+            push_to_hashmap(n.as_str(),&mut radios_groups,inputs);
+          }
+        }else{
+          filtered_inputs.push(inputs.clone());
+        }
+      }
+
+      Ok(Json(final_result.to_final(Some(filtered_inputs),checkboxes_groups, radios_groups)))
     }
 
   } else {

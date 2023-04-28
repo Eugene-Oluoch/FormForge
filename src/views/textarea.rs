@@ -125,8 +125,8 @@ pub async fn update_textareas_view<'a>(id:&'a str,textarea:TextArea,client:&'a C
 
 
   // UPDATE THE REST
-  textarea_results.rows = textarea.rows;
-  textarea_results.cols = textarea.cols;
+  textarea_results.rows = if textarea.rows.is_some() {textarea.rows} else {textarea_results.rows};
+  textarea_results.cols = if textarea.cols.is_some() {textarea.cols} else {textarea_results.cols};
   textarea_results.required = if textarea.required.is_some() {textarea.required} else {textarea_results.required};
 
   println!("{:?}",textarea_results);
