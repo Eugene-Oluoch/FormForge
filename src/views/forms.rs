@@ -96,7 +96,7 @@ pub async fn get_form_view<'a>(id:String, client:&Client) -> Result<Json<FormRec
         }
       }
 
-      Ok(Json(final_result.to_final(Some(filtered_inputs),checkboxes_groups, radios_groups)))
+      Ok(Json(final_result.to_final(Some(filtered_inputs),checkboxes_groups, radios_groups).await))
     }
 
   } else {
