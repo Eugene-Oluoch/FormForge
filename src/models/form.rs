@@ -1,11 +1,13 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, cell::RefCell, sync::Arc};
 
 use serde::{Serialize, Deserialize};
 use mongodb::bson::{Bson,Document};
+use tokio::sync::Mutex;
 use crate::{models::{
   traits::{ResetDefaults},
   input::{Input},
-  select::{SelectReceive}
+  select::{SelectReceive},
+  check_radio::{CheckRadio}
 }, utils::generate_current_time};
 use uuid::Uuid;
 
@@ -46,8 +48,8 @@ pub struct FormReceiveFinal {
   pub textareas:Option<Vec<TextArea>>,
   pub selects: Option<Vec<SelectReceive>>,
   pub steps:Option<i32>,
-  pub checkboxes:HashMap<String, Vec<Input>>,
-  pub radios:HashMap<String, Vec<Input>>,
+  pub checkboxes:Vec<CheckRadio>,
+  pub radios:Vec<CheckRadio>,
   pub archive:Option<bool>,
   pub updated_at: Option<i64>,
   pub created_at: Option<i64>
@@ -83,15 +85,35 @@ impl FormReceive {
       updated_at: None, 
       created_at: None }
   }
-  pub fn to_final(self,inputs:Option<Vec<Input>>,checkboxes:HashMap<String, Vec<Input>>,radios:HashMap<String, Vec<Input>>) -> FormReceiveFinal{
+  pub async fn to_final(self,inputs:Option<Vec<Input>>,checkboxes:HashMap<String, Vec<Input>>,radios:HashMap<String, Vec<Input>>) -> FormReceiveFinal{
+    let mut return_checkboxes = Vec::new();
+    let mut return_radios = Vec::new();
+
+    // THREADS TO STRUCTURE THE DATA
+    let checkboxes_thread = tokio::spawn(async move{
+      for (k,v) in checkboxes{
+        return_checkboxes.push(CheckRadio::new(k, v));
+      }
+      return_checkboxes
+    });
+  
+    let radios_thread = tokio::spawn(async move{
+      for (k,v) in radios{
+        return_radios.push(CheckRadio::new(k, v));
+      }
+      return_radios
+    });
+
+    let results = tokio::join!(checkboxes_thread,radios_thread);
+
     FormReceiveFinal { 
       _id: self._id, 
       name: self.name, 
       inputs, 
       selects:self.selects,
       textareas:self.textareas,
-      checkboxes,
-      radios,
+      checkboxes:results.0.expect("failed"),
+      radios:results.1.expect("failed"),
       steps: self.steps, 
       archive: self.archive, 
       updated_at: self.updated_at, 
