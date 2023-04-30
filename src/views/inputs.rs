@@ -58,6 +58,17 @@ pub async fn add_input_alone<'a>(input:&'a mut Input,client:&'a Client) -> Strin
     input.type_identifier = Some("text".to_string());
   }
   
+
+  // CHECK IF INPUT OF TYPE(CHECKBOX OR RADIO) HAS A SUPPLIED NAME
+  if input.name.is_none() {
+    if let Some(type_) = &input.type_identifier{
+      if type_ == "radio" || type_ == "checkbox"{
+        input.name = Some("default".to_string());
+      }
+    }
+    
+  }
+
   let _ = input.reset();
   let _ = input.map_type();
   insert_doc(client,"inputs", &input).await.unwrap().inserted_id.to_string()
@@ -71,6 +82,7 @@ pub async fn add_input_helper<'a>(input:&'a mut Input,client:&'a Client) -> Resu
       return Err("Form with the provided id doesn't exists 🙁")
     }
   }
+
   let input_id = add_input_alone(input, client).await;
   // UPDATE FORM'S Inputs
   if let Some(form) = &input.form_id{
